@@ -17,35 +17,39 @@ class Shop {
 
 
     for (let item of this.items) {
-      if (item.name != agedBrie && item.name != backStage) {
-        if (item.quality > 0 && item.name != sulfuras) {
+      let name = item.name;
+      let sellIn = item.sellIn;
+      let quality = item.quality;
+
+      if (name != agedBrie && name != backStage) {
+        if (quality > 0 && name != sulfuras) {
             item.quality = item.quality - 1;
         }
       } else {
-        if (item.quality < 50) {
+        if (quality < 50) {
           item.quality = item.quality + 1;
-          if (item.name == backStage) {
-            if (item.sellIn < 11 && item.quality < 50) {
+          if (name == backStage) {
+            if (sellIn < 11 && quality < 50) {
                 item.quality = item.quality + 1;
             }
-            if (item.sellIn < 6 && item.quality < 50) {
+            if (sellIn < 6 && quality < 50) {
                 item.quality = item.quality + 1;
             }
           }
         }
       }
-      if (item.name != sulfuras) {
+      if (name != sulfuras) {
         item.sellIn = item.sellIn - 1;
       }
-      if (item.sellIn < 0) {
-        if (item.name != agedBrie) {
-          if (item.name != backStage && item.name != sulfuras && item.quality > 0) {
+      if (sellIn < 0) {
+        if (name != agedBrie) {
+          if (name != backStage && name != sulfuras && quality > 0) {
               item.quality = item.quality - 1;
           } else {
               item.quality = item.quality - item.quality;
           }
         } else {
-          if (item.quality < 50) {
+          if (quality < 50) {
             item.quality = item.quality + 1;
           }
         }
