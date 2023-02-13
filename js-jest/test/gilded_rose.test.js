@@ -20,7 +20,6 @@ describe("[Gilded Rose] 1. Condition: a. name not agedBrie, backStage, sulfuras 
 });
 
 describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 50; Output: quality + 1",() =>{
-  // magical number
   it.each([
     [new Item("Aged Brie", 12, -1), 0],
     [new Item("Aged Brie", 12, 0), 1],
@@ -46,10 +45,12 @@ describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 
   });
 });
 
-describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 50 c. negative quality; Output: quality + 1",() =>{
+describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality < 50 c. negative quality; Output: quality + 1",() =>{
   it.each([
     [new Item("Aged Brie", 12, -1), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, -1), 0],
+    [new Item("Aged Brie", 12, -2), -1],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", 12, -2), -1],
   ])('Original item: %p expecting %p', (samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -161,12 +162,28 @@ describe("[Gilded Rose] 4. Condition: a. name = backStage b. 0 <= sellIn < 6 c. 
   });
 });
 
-describe("[Gilded Rose] 5a.i Condition: a. name = sulfuras; Output: sellIn unchanged",()=>{
+describe("[Gilded Rose] 5.i Condition: a. name = sulfuras; Output: sellIn unchanged",()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", 10, 50), 10],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, 2), 10],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, 1), 10],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, 0), 10],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 50), 50],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 49), 50],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 2), 50],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 1), 50],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 0), 50],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 50), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 49), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 2), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 1), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 0), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 50), 1],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 49), 1],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 2), 1],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 1), 1],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 0), 1],
+    [new Item("Sulfuras, Hand of Ragnaros", 0, 50), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", 0, 49), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", 0, 2), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", 0, 1), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", 0, 0), 0],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -177,7 +194,7 @@ describe("[Gilded Rose] 5a.i Condition: a. name = sulfuras; Output: sellIn uncha
   })
 });
 
-describe("[Gilded Rose] 5a.ii Condition: a. name = sulfuras b. quality beyond 0-50; Output: sellIn unchanged",()=>{
+describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-50; Output: sellIn unchanged",()=>{
   it.each([
     [new Item("Sulfuras, Hand of Ragnaros", 10, 52), 10],
     [new Item("Sulfuras, Hand of Ragnaros", 10, 51), 10],
@@ -193,7 +210,7 @@ describe("[Gilded Rose] 5a.ii Condition: a. name = sulfuras b. quality beyond 0-
   })
 });
 
-describe("[Gilded Rose] 5b. Condition: a. name not sulfuras; Output: sellIn - 1",()=>{
+describe("[Gilded Rose] 5.iii Condition: a. name not sulfuras; Output: sellIn - 1",()=>{
   it.each([
     [new Item("Curious", 10, 20), 9],
     [new Item("Curious", 9, 20), 8],
@@ -214,6 +231,15 @@ describe("[Gilded Rose] 6.i Condition: a. name not AgedBrie, backStage, sulfuras
     [new Item("Curious", -1, 50), 48],
     [new Item("Curious", -1, 49), 47],
     [new Item("Curious", -1, 2), 0],
+    [new Item("Soulgem", -1, 50), 48],
+    [new Item("Soulgem", -1, 49), 47],
+    [new Item("Soulgem", -1, 2), 0],
+    [new Item("Curious", -2, 50), 48],
+    [new Item("Curious", -2, 49), 47],
+    [new Item("Curious", -2, 2), 0],
+    [new Item("Soulgem", -2, 50), 48],
+    [new Item("Soulgem", -2, 49), 47],
+    [new Item("Soulgem", -2, 2), 0],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -228,6 +254,12 @@ describe("[Gilded Rose] 6.ii Condition: a. name not AgedBrie, backStage, sulfura
   it.each([
     [new Item("Curious", -1, 52), 50],
     [new Item("Curious", -1, 51), 49],
+    [new Item("Generous", -1, 52), 50],
+    [new Item("Generous", -1, 51), 49],
+    [new Item("Curious", -2, 52), 50],
+    [new Item("Curious", -2, 51), 49],
+    [new Item("Generous", -2, 52), 50],
+    [new Item("Generous", -2, 51), 49],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -238,9 +270,26 @@ describe("[Gilded Rose] 6.ii Condition: a. name not AgedBrie, backStage, sulfura
   })
 });
 
-describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality < 0; Output: quality - 2(Negative quality as result)", ()=>{
+describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality > 0 d. quality more than 50; Output: quality - 2(expected: quality - 1)(Negative quality as result)", ()=>{
+  it.each([
+    [new Item("Curious", -1, 54), 52],
+    [new Item("Curious", -1, 53), 51],
+    [new Item("Curious", -2, 54), 52],
+    [new Item("Curious", -2, 53), 51],
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      const items = gildedRose.updateQuality();
+      expect(items[0].quality).toBe(result);
+  })
+});
+
+describe("[Gilded Rose] 6.iv Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality < 0; Output: quality - 2(Negative quality as result)", ()=>{
   it.each([
     [new Item("Curious", -1, 1), -1],
+    [new Item("Curious", -2, 1), -1],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -251,9 +300,10 @@ describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfur
   })
 });
 
-describe("[Gilded Rose] 6.iv Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality < 0 d. quality out of range; Output: quality from 0 to 0", ()=>{
+describe("[Gilded Rose] 6.v Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality < 0; Output: quality from 0 to 0", ()=>{
   it.each([
     [new Item("Curious", -1, 0), 0],
+    [new Item("Curious", -2, 0), 0],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -264,10 +314,37 @@ describe("[Gilded Rose] 6.iv Condition: a. name not AgedBrie, backStage, sulfura
   })
 });
 
-describe("[Gilded Rose] 7. Condition: a. name not agedBrie, backStage b. sellIn < 0; Output: quality - quality", ()=>{
+describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn < 0 c. quality > 0; Output: quality - quality", ()=>{
   it.each([
-    [new Item("Curious", -1, 0), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, 0), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -1, 0), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -2, 0), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -3, 0), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, 50), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -1, 50), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -2, 50), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -3, 50), 0],
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      const items = gildedRose.updateQuality();
+      expect(items[0].quality).toBe(result);
+  })
 
+});
+
+describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn < 0 c. quality < 0; Output: quality - quality", ()=>{
+  it.each([
+    [new Item("Sulfuras, Hand of Ragnaros", -1, -1), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -1, -1), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -2, -1), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -3, -1), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, -2), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -1, -2), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -2, -2), 0],
+    [new Item("Backstage passes to a TAFKAL80ETC concert", -3, -2), 0],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -287,6 +364,12 @@ describe("[Gilded Rose] 8. Condition: a. name agedBrie b. sellIn < 0 c. quality 
     [new Item("Aged Brie", -1, 2), 4],
     [new Item("Aged Brie", -1, 1), 3],
     [new Item("Aged Brie", -1, 0), 2],
+    [new Item("Aged Brie", -2, 49), 51],
+    [new Item("Aged Brie", -2, 48), 50],
+    [new Item("Aged Brie", -2, 47), 49],
+    [new Item("Aged Brie", -2, 2), 4],
+    [new Item("Aged Brie", -2, 1), 3],
+    [new Item("Aged Brie", -2, 0), 2],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
