@@ -14,9 +14,8 @@ class Shop {
     this.increasedQuality = 1;
     this.decreasedQuality = 1;
     this.decreasedSellIn = 1;
-    this.firstDayLimit = 11;
-    this.secondDayLimit = 6;
-    this.thirdDayLimit = 0;
+    this.minDayLimit = 0;
+    this.dayLimits = [11,6];
   }
 
   updateQuality() {
@@ -28,9 +27,8 @@ class Shop {
     let increasedQuality = this.increasedQuality;
     let decreasedQuality = this.decreasedQuality;
     let decreasedSellIn = this.decreasedSellIn;
-    let firstDayLimit = this.firstDayLimit;
-    let secondDayLimit = this.secondDayLimit;
-    let thirdDayLimit = this.thirdDayLimit;
+    let minDayLimit = this.minDayLimit;
+    let dayLimits = this.dayLimits.sort((a,b)=>b-a);
     
     // categorise these three items (by category to deal with)
     // extract method
@@ -48,11 +46,10 @@ class Shop {
         if (quality < maxQuality) {
                 item.quality += increasedQuality;
           if (name == backStage) {
-            if (sellIn < firstDayLimit && quality < maxQuality) {
+            for(let dayLimit of dayLimits){
+              if(sellIn < dayLimit && quality < maxQuality){
                 item.quality += increasedQuality;
-            }
-            if (sellIn < secondDayLimit && quality < maxQuality) {
-                item.quality += increasedQuality;
+              }
             }
             // how to minimise change cost of dayLimit(s)?
           }
@@ -61,7 +58,7 @@ class Shop {
       if (name != sulfuras) {
                 item.sellIn -= decreasedSellIn;
       }
-      if (sellIn < thirdDayLimit) 
+      if (sellIn < minDayLimit) 
       {
         if (name != agedBrie) {
           if (name != backStage && name != sulfuras && quality > minQuality) {
