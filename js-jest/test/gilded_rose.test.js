@@ -296,7 +296,7 @@ describe("[Gilded Rose] 6.ii Condition: a. name not AgedBrie, backStage, sulfura
   })
 });
 
-describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality > 0 d. quality more than 50; Output: quality - 2(expected: quality - 1)(Quality more than 50))", ()=>{
+describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality > 0 d. quality more than 50; Output: quality - 2(Quality more than 50)(AFTER AMENDMENT: quality = 50)", ()=>{
   it.each([
     [new Item("Curious", -1, 54), 50],
     [new Item("Curious", -1, 53), 50],
@@ -344,11 +344,11 @@ describe("[Gilded Rose] 6.v Condition: a. name not AgedBrie, backStage, sulfuras
 
 describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn < 0 c. quality > 0; Output: quality - quality", ()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", -1, 0), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, 0), 80],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -1, 0), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -2, 0), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -3, 0), 0],
-    [new Item("Sulfuras, Hand of Ragnaros", -1, 50), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, 50), 80],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -1, 50), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -2, 50), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -3, 50), 0],
@@ -365,11 +365,11 @@ describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStag
 
 describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn < 0 c. quality < 0; Output: quality - quality", ()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", -1, -1), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, -1), 80],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -1, -1), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -2, -1), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -3, -1), 0],
-    [new Item("Sulfuras, Hand of Ragnaros", -1, -2), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, -2), 80],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -1, -2), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -2, -2), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -3, -2), 0],
@@ -570,10 +570,10 @@ describe("[Gilded Rose] 9. Condition: a. name backStage b. sellIn < 0 c. quality
 
 describe("[Gilded Rose] 10.i Condition: a. name sulfaras b. sellIn > 0 c. quality < 50 ; Output: quality = quality", ()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", 50, 49), 49],
-    [new Item("Sulfuras, Hand of Ragnaros", 49, 49), 49],
-    [new Item("Sulfuras, Hand of Ragnaros", 2, 49), 49],
-    [new Item("Sulfuras, Hand of Ragnaros", 1, 49), 49],
+    [new Item("Sulfuras, Hand of Ragnaros", 50, 49), 80],
+    [new Item("Sulfuras, Hand of Ragnaros", 49, 49), 80],
+    [new Item("Sulfuras, Hand of Ragnaros", 2, 49), 80],
+    [new Item("Sulfuras, Hand of Ragnaros", 1, 49), 80],
 
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
@@ -587,8 +587,8 @@ describe("[Gilded Rose] 10.i Condition: a. name sulfaras b. sellIn > 0 c. qualit
 
 describe("[Gilded Rose] 10.ii Condition: a. name sulfaras b. sellIn < 0 c. quality < 50 ; Output: quality = zero", ()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", -1, 49), 0],
-    [new Item("Sulfuras, Hand of Ragnaros", -2, 49), 0],
+    [new Item("Sulfuras, Hand of Ragnaros", -1, 49), 80],
+    [new Item("Sulfuras, Hand of Ragnaros", -2, 49), 80],
 
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
