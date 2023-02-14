@@ -29,10 +29,10 @@ class Shop {
     this.legendaryItemList = this.settings.filter(item => item.type == this.legendaryItem);
     this.epicItemList = this.settings.filter(item => item.type == this.epicItem);
     this.backstagePassItemList = this.settings.filter(item => item.type == this.backstagePassItem);
-    this.combinedList = [
-      {list: this.legendaryItemList, handler: new LegendaryItemsHandler()},
-      {list: this.epicItemList, handler: new EpicItemsHandler()},
-      {list: this.backstagePassItemList, handler: new BackstagePassItemsHandler()},
+    this.categorizedLists = [
+      {name: this.legendaryItemList, itemHandler: LegendaryItemsHandler},
+      {name: this.epicItemList, itemHandler: EpicItemsHandler},
+      {name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler},
     ]
   }
 
@@ -48,29 +48,21 @@ class Shop {
   }
 
   updateQuality() {
+    let handled = false;
     for (let item of this.items) {
-      if (this.legendaryItemList.find((i) => i.name == item.name)) {
-        new LegendaryItemsHandler().updateQuality(item);
+      for(let list of this.categorizedLists){
+        if (list.name.find((i) => i.name == item.name)) { 
+          new list.itemHandler().updateQuality(item);
+          handled = true;
+        }
       }
-      else if (this.epicItemList.find((i) => i.name == item.name)) {
-        new EpicItemsHandler().updateQuality(item);
-      }
-      else if (this.backstagePassItemList.find((i) => i.name == item.name)) {
-        new BackstagePassItemsHandler().updateQuality(item);
-      }
-      else {
+      if(handled == false){
         new ConjuredItemsHandler().updateQuality(item);
       }
     }
     return this.items;
   }
 }
-
-
-
-
-
-
 
 class ItemHandler {
   constructor() {
@@ -79,8 +71,13 @@ class ItemHandler {
     this.changedQuality = 1;
     this.changedSellIn = -1;
     this.minDayLimit = 0;
-    this.dayLimits = [10, 5].sort((a, b) => b - a);
+    this.dayLimits = [
+      {day:100, changedQuality:1 },
+      {day:10, changedQuality:1 },
+      {day:5, changedQuality:1},
+    ].sort((a, b)=> a.day>b.day?-1:1);
   }
+
   updateSellIn(item) {
     item.sellIn += this.changedSellIn;
   }
@@ -134,9 +131,10 @@ class BackstagePassItemsHandler extends ItemHandler {
     super();
   }
   updateQuality(item) {
-    if (item.sellIn >= this.minDayLimit) this.changeQuality(item);
-    if (item.sellIn >= this.minDayLimit && item.sellIn <= this.dayLimits[0]) this.changeQuality(item);
-    if (item.sellIn >= this.minDayLimit && item.sellIn <= this.dayLimits[1]) this.changeQuality(item);
+    for(let dayLimit of this.dayLimits){
+      if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
+      item.quality += dayLimit.changedQuality;
+    } 
     if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
     this.validateQuality(item);
   }
