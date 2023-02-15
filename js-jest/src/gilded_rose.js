@@ -14,10 +14,11 @@ class Shop {
     this.agedCheese = 'Aged Cheese';
     this.backStage = 'Backstage passes to a TAFKAL80ETC concert';
     this.backStage2 = 'Backstage passes to a TAFKAL80ETC concert - version 2';
-    this.curious = 'Curious';
+    this.curious = 'curious';
     this.generous = 'Generous';
     this.creature = 'Creature';
     this.fantasy = 'Fantasy';
+    this.soulgem = 'Soulgem';
     this.conjured = 'Conjured';
     this.sulfuras = 'Sulfuras, Hand of Ragnaros';
     this.sulfuras2 = 'Sulfuras, Hand of Ragnaros v2';
@@ -39,30 +40,22 @@ class Shop {
       { name: this.generous, type: this.normalItem },
       { name: this.creature, type: this.normalItem },
       { name: this.fantasy, type: this.normalItem },
+      { name: this.soulgem, type: this.normalItem },
       { name: this.conjured, type: this.conjuredItem },
     ];
     this.settings2 = [];
 
-    this.categories2 = this.settings.reduce((categories, item) => {
+    this.categories = this.settings.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
     }, {})
 
     // source: categories2 , function name: updateQuality
-    this.categories2['LegendaryItem'].map((item => Object.assign(item, {itemHandler: LegendaryItemsHandler})))
-    this.categories2['EpicItem'].map((item => Object.assign(item, {itemHandler: EpicItemsHandler})))
-    this.categories2['BackstagePassItem'].map((item => Object.assign(item, {itemHandler: BackstagePassItemsHandler})))
-    this.categories2['ConjuredItem'].map((item => Object.assign(item, {itemHandler: ConjuredItemsHandler})))
-    this.categories2['NormalItem'].map((item => Object.assign(item, {itemHandler: NormalItemsHandler})))
-
-    this.legendaryItemList = this.settings.filter(item => item.type == this.legendaryItem);
-    this.epicItemList = this.settings.filter(item => item.type == this.epicItem);
-    this.backstagePassItemList = this.settings.filter(item => item.type == this.backstagePassItem);
-    this.categories = [
-      { name: this.legendaryItemList, itemHandler: LegendaryItemsHandler },
-      { name: this.epicItemList, itemHandler: EpicItemsHandler },
-      { name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler },
-    ]
+    this.categories['LegendaryItem'].map((item => Object.assign(item, { itemHandler: LegendaryItemsHandler })))
+    this.categories['EpicItem'].map((item => Object.assign(item, { itemHandler: EpicItemsHandler })))
+    this.categories['BackstagePassItem'].map((item => Object.assign(item, { itemHandler: BackstagePassItemsHandler })))
+    this.categories['ConjuredItem'].map((item => Object.assign(item, { itemHandler: ConjuredItemsHandler })))
+    this.categories['NormalItem'].map((item => Object.assign(item, { itemHandler: NormalItemsHandler })))
 
     // console.log('categories: ', this.categories2);
     // console.log('categories key: ', Object.keys(this.categories2));
@@ -72,7 +65,7 @@ class Shop {
 
   updateSellIn() {
     for (let item of this.items) {
-      if (this.legendaryItemList.find((i) => i.name == item.name)) {
+      if (this.categories[this.legendaryItem].find((i) => i.name == item.name)) {
         new LegendaryItemsHandler().updateSellIn(item);
       } else {
         new ItemHandler().updateSellIn(item);
@@ -81,25 +74,23 @@ class Shop {
     return this.items;
   }
 
-  
-  updateQuality() {
-    new Validator().validate(this.settings,(item=>item.name));
-    let handled = false;
-    for (let item of this.items) {
-      for (let list of this.categories) {
-        if (list.name.find((i) => i.name == item.name)) {
-          new list.itemHandler().updateQuality(item);
-          handled = true;
-        }
-      }
-      if (handled == false) {
-        new NormalItemsHandler().updateQuality(item);
-      }
-    }
-    return this.items;
-  }
 
+  updateQuality() {
+    new Validator().validate(this.settings, (item => item.name));
+
+    for (let item of this.items) {
+      for (let subCategory in this.categories) {
+        this.categories[subCategory].find((subItem) => {
+          if (subItem.name == item.name) {
+            new subItem.itemHandler().updateQuality(item);
+          }
+        })
+      }
+
+      return this.items;
+    }
   }
+}
 
 
 
