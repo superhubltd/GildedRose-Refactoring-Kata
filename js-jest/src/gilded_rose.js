@@ -15,9 +15,9 @@ class Shop {
     this.backStage = 'Backstage passes to a TAFKAL80ETC concert';
     this.backStage2 = 'Backstage passes to a TAFKAL80ETC concert - version 2';
     this.sulfuras = 'Sulfuras, Hand of Ragnaros';
-    this.legendaryItem = 'legendaryItem';
-    this.epicItem = 'epicItem';
-    this.backstagePassItem = 'backstagePassItem';
+    this.legendaryItem = 'LegendaryItem';
+    this.epicItem = 'EpicItem';
+    this.backstagePassItem = 'BackstagePassItem';
     this.settings = [
       { name: this.sulfuras, type: this.legendaryItem },
       { name: this.agedBrie, type: this.epicItem },
@@ -26,8 +26,18 @@ class Shop {
       { name: this.backStage, type: this.backstagePassItem },
       { name: this.backStage2, type: this.backstagePassItem },
     ];
-    // this.settings= [];
-    // this.categories={};
+    this.settings2= [];
+
+    this.categories2 = this.settings.reduce((categories,item)=>{
+      (categories[item.type]=categories[item.type]||[]).push(item);
+      return categories;
+    },{})
+
+      this.categories2['LegendaryItem'].map((item=>item['itemHandler'] = LegendaryItemsHandler))
+      this.categories2['EpicItem'].map((item=>item['itemHandler'] = EpicItemsHandler))
+      this.categories2['BackstagePassItem'].map((item=>item['itemHandler'] = BackstagePassItemsHandler))
+
+
     this.legendaryItemList = this.settings.filter(item => item.type == this.legendaryItem);
     this.epicItemList = this.settings.filter(item => item.type == this.epicItem);
     this.backstagePassItemList = this.settings.filter(item => item.type == this.backstagePassItem);
@@ -37,6 +47,7 @@ class Shop {
       { name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler },
     ]
 
+    console.log('categories: ', this.categories2);
   }
   // categorization(){}
 
@@ -131,20 +142,6 @@ class LegendaryItemsHandler extends ItemHandler {
   }
 }
 
-class NormalItemsHandler extends ItemHandler{
-  constructor() {
-    super();
-    this.changedQuality = -1;
-  }
-  updateQuality(item) {
-    this.changeQuality(item);
-    if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item);
-    }
-    this.validateQuality(item);
-  }
-}
-
 class EpicItemsHandler extends ItemHandler {
   constructor() {
     super();
@@ -181,6 +178,20 @@ class ConjuredItemsHandler extends ItemHandler {
   }
   updateQuality(item) {
     this.changeQuality(item);
+    this.validateQuality(item);
+  }
+}
+
+class NormalItemsHandler extends ItemHandler{
+  constructor() {
+    super();
+    this.changedQuality = -1;
+  }
+  updateQuality(item) {
+    this.changeQuality(item);
+    if (item.sellIn < this.minDayLimit) {
+      this.changeQuality(item);
+    }
     this.validateQuality(item);
   }
 }
