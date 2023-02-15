@@ -19,22 +19,26 @@ class Shop {
     this.epicItem = 'epicItem';
     this.backstagePassItem = 'backstagePassItem';
     this.settings = [
-      { name: this.sulfuras, type: this.legendaryItem }, 
+      { name: this.sulfuras, type: this.legendaryItem },
       { name: this.agedBrie, type: this.epicItem },
-      { name: this.agedRum, type: this.epicItem }, 
-      { name: this.agedCheese, type: this.epicItem }, 
+      { name: this.agedRum, type: this.epicItem },
+      { name: this.agedCheese, type: this.epicItem },
       { name: this.backStage, type: this.backstagePassItem },
       { name: this.backStage2, type: this.backstagePassItem },
     ];
+    // this.settings= [];
+    // this.categories={};
     this.legendaryItemList = this.settings.filter(item => item.type == this.legendaryItem);
     this.epicItemList = this.settings.filter(item => item.type == this.epicItem);
     this.backstagePassItemList = this.settings.filter(item => item.type == this.backstagePassItem);
-    this.categorizedLists = [
-      {name: this.legendaryItemList, itemHandler: LegendaryItemsHandler},
-      {name: this.epicItemList, itemHandler: EpicItemsHandler},
-      {name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler},
+    this.categories = [
+      { name: this.legendaryItemList, itemHandler: LegendaryItemsHandler },
+      { name: this.epicItemList, itemHandler: EpicItemsHandler },
+      { name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler },
     ]
+
   }
+  // categorization(){}
 
   updateSellIn() {
     for (let item of this.items) {
@@ -48,15 +52,16 @@ class Shop {
   }
 
   updateQuality() {
+    new Validator().validate(this.settings,(item=>item.name));
     let handled = false;
     for (let item of this.items) {
-      for(let list of this.categorizedLists){
-        if (list.name.find((i) => i.name == item.name)) { 
+      for (let list of this.categories) {
+        if (list.name.find((i) => i.name == item.name)) {
           new list.itemHandler().updateQuality(item);
           handled = true;
         }
       }
-      if(handled == false){
+      if (handled == false) {
         new ConjuredItemsHandler().updateQuality(item);
       }
     }
@@ -71,12 +76,12 @@ class ItemHandler {
     this.changedQuality = 1;
     this.changedSellIn = -1;
     this.minDayLimit = 0;
-    this.dayLimits = new Map([
-      [100,{changedQuality:1 }],
-      [10, {changedQuality:1 }],
-      [5,{changedQuality:1}],
-    ])
-    }
+    this.dayLimits = [
+      { day: 100, changedQuality: 1 },
+      { day: 10, changedQuality: 1 },
+      { day: 5, changedQuality: 1 },
+    ];
+  }
 
   updateSellIn(item) {
     item.sellIn += this.changedSellIn;
@@ -90,6 +95,20 @@ class ItemHandler {
     }
     else if (item.quality >= this.maxQuality) {
       item.quality = this.maxQuality;
+    }
+  }
+
+}
+
+
+class Validator{
+  validate(list, validateItem){
+    let validatedArr = (list).map(validateItem);
+    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
+    if (isDuplicate == true) {
+      throw new Error(`${validateItem} has duplicate items, please check again!`);
+    }else{
+      return
     }
   }
 }
@@ -113,6 +132,9 @@ class LegendaryItemsHandler extends ItemHandler {
   }
 }
 
+// class NormalItemsHandler extends ItemHandler{
+
+// }
 class EpicItemsHandler extends ItemHandler {
   constructor() {
     super();
@@ -131,10 +153,12 @@ class BackstagePassItemsHandler extends ItemHandler {
     super();
   }
   updateQuality(item) {
-    for(let [key, value] of this.dayLimits){
-      if (item.sellIn >= this.minDayLimit && item.sellIn <= key)
-      item.quality += value.changedQuality;
-    } 
+    new Validator().validate(this.dayLimits,(item=>item.day));
+
+    for (let dayLimit of this.dayLimits) {
+      if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
+        item.quality += dayLimit.changedQuality;
+    }
     if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
     this.validateQuality(item);
   }
