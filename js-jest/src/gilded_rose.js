@@ -62,10 +62,22 @@ class Shop {
         }
       }
       if (handled == false) {
-        new ConjuredItemsHandler().updateQuality(item);
+        new NormalItemsHandler().updateQuality(item);
       }
     }
     return this.items;
+  }
+}
+
+class Validator{
+  validate(list, validateItem){
+    let validatedArr = (list).map(validateItem);
+    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
+    if (isDuplicate == true) {
+      throw new Error(`${validateItem} has duplicate items, please check again!`);
+    }else{
+      return
+    }
   }
 }
 
@@ -100,19 +112,6 @@ class ItemHandler {
 
 }
 
-
-class Validator{
-  validate(list, validateItem){
-    let validatedArr = (list).map(validateItem);
-    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
-    if (isDuplicate == true) {
-      throw new Error(`${validateItem} has duplicate items, please check again!`);
-    }else{
-      return
-    }
-  }
-}
-
 class LegendaryItemsHandler extends ItemHandler {
   constructor() {
     super();
@@ -132,9 +131,20 @@ class LegendaryItemsHandler extends ItemHandler {
   }
 }
 
-// class NormalItemsHandler extends ItemHandler{
+class NormalItemsHandler extends ItemHandler{
+  constructor() {
+    super();
+    this.changedQuality = -1;
+  }
+  updateQuality(item) {
+    this.changeQuality(item);
+    if (item.sellIn < this.minDayLimit) {
+      this.changeQuality(item);
+    }
+    this.validateQuality(item);
+  }
+}
 
-// }
 class EpicItemsHandler extends ItemHandler {
   constructor() {
     super();
@@ -165,15 +175,12 @@ class BackstagePassItemsHandler extends ItemHandler {
 }
 
 class ConjuredItemsHandler extends ItemHandler {
-  constructor() {
+  constructor(){
     super();
-    this.changedQuality = -1;
+    this.changedQuality = -2;
   }
   updateQuality(item) {
     this.changeQuality(item);
-    if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item);
-    }
     this.validateQuality(item);
   }
 }
