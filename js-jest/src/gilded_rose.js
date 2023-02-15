@@ -14,29 +14,46 @@ class Shop {
     this.agedCheese = 'Aged Cheese';
     this.backStage = 'Backstage passes to a TAFKAL80ETC concert';
     this.backStage2 = 'Backstage passes to a TAFKAL80ETC concert - version 2';
+    this.curious = 'Curious';
+    this.generous = 'Generous';
+    this.creature = 'Creature';
+    this.fantasy = 'Fantasy';
+    this.conjured = 'Conjured';
     this.sulfuras = 'Sulfuras, Hand of Ragnaros';
+    this.sulfuras2 = 'Sulfuras, Hand of Ragnaros v2';
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
     this.backstagePassItem = 'BackstagePassItem';
+    this.conjuredItem = 'ConjuredItem';
+    this.normalItem = 'NormalItem';
+
     this.settings = [
       { name: this.sulfuras, type: this.legendaryItem },
+      { name: this.sulfuras2, type: this.legendaryItem },
       { name: this.agedBrie, type: this.epicItem },
       { name: this.agedRum, type: this.epicItem },
       { name: this.agedCheese, type: this.epicItem },
       { name: this.backStage, type: this.backstagePassItem },
       { name: this.backStage2, type: this.backstagePassItem },
+      { name: this.curious, type: this.normalItem },
+      { name: this.generous, type: this.normalItem },
+      { name: this.creature, type: this.normalItem },
+      { name: this.fantasy, type: this.normalItem },
+      { name: this.conjured, type: this.conjuredItem },
     ];
-    this.settings2= [];
+    this.settings2 = [];
 
-    this.categories2 = this.settings.reduce((categories,item)=>{
-      (categories[item.type]=categories[item.type]||[]).push(item);
+    this.categories2 = this.settings.reduce((categories, item) => {
+      (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
-    },{})
+    }, {})
 
-      this.categories2['LegendaryItem'].map((item=>item['itemHandler'] = LegendaryItemsHandler))
-      this.categories2['EpicItem'].map((item=>item['itemHandler'] = EpicItemsHandler))
-      this.categories2['BackstagePassItem'].map((item=>item['itemHandler'] = BackstagePassItemsHandler))
-
+    // source: categories2 , function name: updateQuality
+    this.categories2['LegendaryItem'].map((item => Object.assign(item, {itemHandler: LegendaryItemsHandler})))
+    this.categories2['EpicItem'].map((item => Object.assign(item, {itemHandler: EpicItemsHandler})))
+    this.categories2['BackstagePassItem'].map((item => Object.assign(item, {itemHandler: BackstagePassItemsHandler})))
+    this.categories2['ConjuredItem'].map((item => Object.assign(item, {itemHandler: ConjuredItemsHandler})))
+    this.categories2['NormalItem'].map((item => Object.assign(item, {itemHandler: NormalItemsHandler})))
 
     this.legendaryItemList = this.settings.filter(item => item.type == this.legendaryItem);
     this.epicItemList = this.settings.filter(item => item.type == this.epicItem);
@@ -47,7 +64,9 @@ class Shop {
       { name: this.backstagePassItemList, itemHandler: BackstagePassItemsHandler },
     ]
 
-    console.log('categories: ', this.categories2);
+    // console.log('categories: ', this.categories2);
+    // console.log('categories key: ', Object.keys(this.categories2));
+
   }
   // categorization(){}
 
@@ -62,6 +81,7 @@ class Shop {
     return this.items;
   }
 
+  
   updateQuality() {
     new Validator().validate(this.settings,(item=>item.name));
     let handled = false;
@@ -78,15 +98,24 @@ class Shop {
     }
     return this.items;
   }
-}
 
-class Validator{
-  validate(list, validateItem){
+  }
+
+
+
+
+
+
+
+
+
+class Validator {
+  validate(list, validateItem) {
     let validatedArr = (list).map(validateItem);
     var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
     if (isDuplicate == true) {
       throw new Error(`${validateItem} has duplicate items, please check again!`);
-    }else{
+    } else {
       return
     }
   }
@@ -160,7 +189,7 @@ class BackstagePassItemsHandler extends ItemHandler {
     super();
   }
   updateQuality(item) {
-    new Validator().validate(this.dayLimits,(item=>item.day));
+    new Validator().validate(this.dayLimits, (item => item.day));
 
     for (let dayLimit of this.dayLimits) {
       if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
@@ -172,7 +201,7 @@ class BackstagePassItemsHandler extends ItemHandler {
 }
 
 class ConjuredItemsHandler extends ItemHandler {
-  constructor(){
+  constructor() {
     super();
     this.changedQuality = -2;
   }
@@ -182,7 +211,7 @@ class ConjuredItemsHandler extends ItemHandler {
   }
 }
 
-class NormalItemsHandler extends ItemHandler{
+class NormalItemsHandler extends ItemHandler {
   constructor() {
     super();
     this.changedQuality = -1;
