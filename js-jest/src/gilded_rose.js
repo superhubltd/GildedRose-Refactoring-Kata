@@ -71,12 +71,12 @@ class ItemHandler {
     this.changedQuality = 1;
     this.changedSellIn = -1;
     this.minDayLimit = 0;
-    this.dayLimits = [
-      {day:100, changedQuality:1 },
-      {day:10, changedQuality:1 },
-      {day:5, changedQuality:1},
-    ].sort((a, b)=> a.day>b.day?-1:1);
-  }
+    this.dayLimits = new Map([
+      [100,{changedQuality:1 }],
+      [10, {changedQuality:1 }],
+      [5,{changedQuality:1}],
+    ])
+    }
 
   updateSellIn(item) {
     item.sellIn += this.changedSellIn;
@@ -131,9 +131,9 @@ class BackstagePassItemsHandler extends ItemHandler {
     super();
   }
   updateQuality(item) {
-    for(let dayLimit of this.dayLimits){
-      if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
-      item.quality += dayLimit.changedQuality;
+    for(let [key, value] of this.dayLimits){
+      if (item.sellIn >= this.minDayLimit && item.sellIn <= key)
+      item.quality += value.changedQuality;
     } 
     if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
     this.validateQuality(item);
