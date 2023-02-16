@@ -14,7 +14,7 @@ describe("[Gilded Rose] 1. Condition: a. name not agedBrie, backStage, sulfuras 
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
     expect(items[0].quality).toBe(result)
   });
 });
@@ -39,7 +39,7 @@ describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -55,7 +55,7 @@ describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality <
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -96,7 +96,7 @@ describe("[Gilded Rose] 3.i Condition: a. name = backStage b. 6 <= sellIn < 11 c
       [
           samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -113,7 +113,7 @@ describe("[Gilded Rose] 3.ii Condition: a. name = backStage b. 6 <= sellIn < 11 
       [
           samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -155,7 +155,7 @@ describe("[Gilded Rose] 4.i Condition: a. name = backStage b. 0 <= sellIn < 6 c.
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -179,7 +179,7 @@ describe("[Gilded Rose] 4.ii Condition: a. name = backStage b. 0 <= sellIn < 6 c
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   });
 });
@@ -211,7 +211,7 @@ describe("[Gilded Rose] 5.i Condition: a. name = sulfuras; Output: sellIn unchan
       [
         samples,
       ])
-      const items = gildedRose.updateSellIn();
+      const items = gildedRose.updateAll();
       expect(items[0].sellIn).toBe(result);
   })
 });
@@ -227,7 +227,7 @@ describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-5
       [
         samples,
       ])
-      const items = gildedRose.updateSellIn();
+      const items = gildedRose.updateAll();
       expect(items[0].sellIn).toBe(result);
   })
 });
@@ -247,13 +247,14 @@ describe("[Gilded Rose] 5.iii Condition: a. name not sulfuras; Output: sellIn - 
       [
         samples,
       ])
-      const items = gildedRose.updateSellIn();
+      const items = gildedRose.updateAll();
       expect(items[0].sellIn).toBe(result); 
   })
 });
 
 describe("[Gilded Rose] 6.i Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn < 0 c. quality > 0; Output: quality - 2(expected: quality - 1)", ()=>{
   it.each([
+    [new Item("curious", 0, 50), 48],
     [new Item("curious", -1, 50), 48],
     [new Item("curious", -1, 49), 47],
     [new Item("curious", -1, 2), 0],
@@ -271,7 +272,7 @@ describe("[Gilded Rose] 6.i Condition: a. name not AgedBrie, backStage, sulfuras
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      let items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -291,7 +292,7 @@ describe("[Gilded Rose] 6.ii Condition: a. name not AgedBrie, backStage, sulfura
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -307,7 +308,7 @@ describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfur
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -321,7 +322,7 @@ describe("[Gilded Rose] 6.iv Condition: a. name not AgedBrie, backStage, sulfura
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -337,7 +338,7 @@ describe("[Gilded Rose] 6.v Condition: a. name not AgedBrie, backStage, sulfuras
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -357,7 +358,7 @@ describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStag
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 
@@ -378,7 +379,7 @@ describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backSta
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 
@@ -402,7 +403,7 @@ describe("[Gilded Rose] 8.i Condition: a. name agedBrie b. sellIn < 0 c. quality
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -417,7 +418,7 @@ describe("[Gilded Rose] 8.ii Condition: a. name agedBrie b. sellIn < 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -449,7 +450,7 @@ describe("[Gilded Rose] 8.iii Condition: a. name agedBrie b. 0 <= sellIn < 6 0 c
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -488,7 +489,7 @@ describe("[Gilded Rose] 8.iv Condition: a. name agedBrie b. 6 <= sellIn < 11 c. 
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -513,7 +514,7 @@ describe("[Gilded Rose] 8.v Condition: a. name not agedBrie b. 6 <= sellIn < 11 
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -545,7 +546,7 @@ describe("[Gilded Rose] 8.vi Condition: a. name not agedBrie b. 0 <= sellIn < 6 
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -563,7 +564,7 @@ describe("[Gilded Rose] 9. Condition: a. name backStage b. sellIn < 0 c. quality
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -580,7 +581,7 @@ describe("[Gilded Rose] 10.i Condition: a. name sulfaras b. sellIn > 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });
@@ -595,7 +596,7 @@ describe("[Gilded Rose] 10.ii Condition: a. name sulfaras b. sellIn < 0 c. quali
       [
         samples,
       ])
-      const items = gildedRose.updateQuality();
+      const items = gildedRose.updateAll();
       expect(items[0].quality).toBe(result);
   })
 });

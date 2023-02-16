@@ -50,28 +50,33 @@ class Shop {
       return categories;
     }, {})
 
-    // source: categories2 , function name: updateQuality
-    this.categories['LegendaryItem'].map((item => Object.assign(item, { itemHandler: LegendaryItemsHandler })))
-    this.categories['EpicItem'].map((item => Object.assign(item, { itemHandler: EpicItemsHandler })))
-    this.categories['BackstagePassItem'].map((item => Object.assign(item, { itemHandler: BackstagePassItemsHandler })))
-    this.categories['ConjuredItem'].map((item => Object.assign(item, { itemHandler: ConjuredItemsHandler })))
-    this.categories['NormalItem'].map((item => Object.assign(item, { itemHandler: NormalItemsHandler })))
+    this.handlerMap = {
+      'LegendaryItem': LegendaryItemHandler, 
+      'EpicItem': EpicItemHandler,
+      'BackstagePassItem': BackstagePassItemHandler,
+      'ConjuredItem': ConjuredItemHandler,
+      'NormalItem': NormalItemHandler
+    }
+    this.categorize();  
 
-    // console.log('categories: ', this.categories2);
-    // console.log('categories key: ', Object.keys(this.categories2));
-
+    
   }
-  // categorization(){}
+  categorize(){
+    for(const [key,value] of Object.entries(this.handlerMap)){
+      this.categories[`${key}`].map((item => Object.assign(item, { itemHandler: value })))
+    }
+  }
+
 
   updateSellIn() {
     for (let item of this.items) {
       if (this.categories[this.legendaryItem].find((i) => i.name == item.name)) {
-        new LegendaryItemsHandler().updateSellIn(item);
+        new LegendaryItemHandler().updateSellIn(item);
       } else {
         new ItemHandler().updateSellIn(item);
       }
     }
-    return this.items;
+
   }
 
 
@@ -86,18 +91,15 @@ class Shop {
           }
         })
       }
-
-      return this.items;
     }
   }
+
+  updateAll() {
+    this.updateSellIn();
+    this.updateQuality();
+    return this.items;
+  }
 }
-
-
-
-
-
-
-
 
 
 class Validator {
@@ -143,7 +145,7 @@ class ItemHandler {
 
 }
 
-class LegendaryItemsHandler extends ItemHandler {
+class LegendaryItemHandler extends ItemHandler {
   constructor() {
     super();
     this.changedQuality = 0;
@@ -162,7 +164,7 @@ class LegendaryItemsHandler extends ItemHandler {
   }
 }
 
-class EpicItemsHandler extends ItemHandler {
+class EpicItemHandler extends ItemHandler {
   constructor() {
     super();
   }
@@ -175,7 +177,7 @@ class EpicItemsHandler extends ItemHandler {
   }
 }
 
-class BackstagePassItemsHandler extends ItemHandler {
+class BackstagePassItemHandler extends ItemHandler {
   constructor() {
     super();
   }
@@ -191,7 +193,7 @@ class BackstagePassItemsHandler extends ItemHandler {
   }
 }
 
-class ConjuredItemsHandler extends ItemHandler {
+class ConjuredItemHandler extends ItemHandler {
   constructor() {
     super();
     this.changedQuality = -2;
@@ -202,7 +204,7 @@ class ConjuredItemsHandler extends ItemHandler {
   }
 }
 
-class NormalItemsHandler extends ItemHandler {
+class NormalItemHandler extends ItemHandler {
   constructor() {
     super();
     this.changedQuality = -1;
