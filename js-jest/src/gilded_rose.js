@@ -43,12 +43,22 @@ class Shop {
       { name: this.soulgem, type: this.normalItem },
       { name: this.conjured, type: this.conjuredItem },
     ];
-    this.settings2 = [];
+
 
     this.categories = this.settings.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
     }, {})
+
+    this.settings2 = [];
+    this.settingMap = {
+      'Sulfuras': this.legendaryItem,
+      'Backstage passes':this.backstagePassItem,
+      'Aged':this.epicItem,
+      'Conjured': this.conjuredItem,
+    }
+
+    this.setUp();
 
     this.handlerMap = {
       'LegendaryItem': LegendaryItemHandler, 
@@ -57,16 +67,32 @@ class Shop {
       'ConjuredItem': ConjuredItemHandler,
       'NormalItem': NormalItemHandler
     }
+    
     this.categorize();  
 
-    
+    console.log(this.settings2);
   }
+
+  setUp(){
+
+    let notNormalItem = false;
+    for(let item of this.items){
+      for(const [key,value] of Object.entries(this.settingMap)){
+        if(item.name.includes(key)){
+          this.settings2.push({name: item.name, type: value})
+          notNormalItem = true;
+      }
+      }
+      if(notNormalItem==false)
+          this.settings2.push({name: item.name, type: this.normalItem})
+    }
+  }
+
   categorize(){
     for(const [key,value] of Object.entries(this.handlerMap)){
       this.categories[`${key}`].map((item => Object.assign(item, { itemHandler: value })))
     }
   }
-
 
   updateSellIn() {
     for (let item of this.items) {
