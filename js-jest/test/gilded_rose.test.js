@@ -600,3 +600,70 @@ describe("[Gilded Rose] 10.ii Condition: a. name sulfaras b. sellIn < 0 c. quali
       expect(items[0].quality).toBe(result);
   })
 });
+
+describe("[Gilded Rose] 11.i Condition: a. name conjured b. sellIn < 0 c. quality < 50 ; Output: quality -2", ()=>{
+  it.each([
+    [new Item("Conjured, Hand of Ragnaros", -1, 50), 48],
+    [new Item("Conjured, Hand of Ragnaros", -1, 49), 47],
+    [new Item("Conjured, Hand of Ragnaros", -1, 48), 46],
+    [new Item("Conjured, Hand of Ragnaros", -1, 3), 1],
+    [new Item("Conjured, Hand of Ragnaros", -1, 2), 0],
+    [new Item("Conjured, Hand of Ragnaros", -2, 50), 48],
+    [new Item("Conjured, Hand of Ragnaros", -2, 49), 47],
+    [new Item("Conjured, Hand of Ragnaros", -2, 48), 46],
+    [new Item("Conjured, Hand of Ragnaros", -2, 3), 1],
+    [new Item("Conjured, Hand of Ragnaros", -2, 2), 0],
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      const items = gildedRose.updateAll();
+      expect(items[0].quality).toBe(result);
+  })
+});
+
+describe("[Gilded Rose] 11.ii Condition: a. name conjured b. sellIn >= 0 c. quality < 50 ; Output: quality -2", ()=>{
+  it.each([
+    [new Item("Conjured, Hand of Ragnaros", 0, 50), 48],
+    [new Item("Conjured, Hand of Ragnaros", 0, 49), 47],
+    [new Item("Conjured, Hand of Ragnaros", 0, 48), 46],
+    [new Item("Conjured, Hand of Ragnaros", 0, 3), 1],
+    [new Item("Conjured, Hand of Ragnaros", 0, 2), 0],
+    [new Item("Conjured, Hand of Ragnaros", 1, 50), 48],
+    [new Item("Conjured, Hand of Ragnaros", 1, 49), 47],
+    [new Item("Conjured, Hand of Ragnaros", 1, 48), 46],
+    [new Item("Conjured, Hand of Ragnaros", 1, 3), 1],
+    [new Item("Conjured, Hand of Ragnaros", 1, 2), 0],
+
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      const items = gildedRose.updateAll();
+      expect(items[0].quality).toBe(result);
+  })
+});
+
+describe("[Gilded Rose] 11.iii Condition: a. name conjured b. sellIn >= 0 c. quality < 50 ; Output: quality = zero", ()=>{
+  it.each([
+    [new Item("Conjured, Hand of Ragnaros", 0, 1), 0],
+    [new Item("Conjured, Hand of Ragnaros", 0, 0), 0],
+    [new Item("Conjured, Hand of Ragnaros", 1, 1), 0],
+    [new Item("Conjured, Hand of Ragnaros", 1, 0), 0],
+    [new Item("Conjured, Hand of Ragnaros", 2, 1), 0],
+    [new Item("Conjured, Hand of Ragnaros", 2, 0), 0],
+    [new Item("Conjured, Hand of Ragnaros", -1, 1), 0],
+    [new Item("Conjured, Hand of Ragnaros", -1, 0), 0],
+    [new Item("Conjured, Hand of Ragnaros", -2, 1), 0],
+    [new Item("Conjured, Hand of Ragnaros", -2, 0), 0],
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      const items = gildedRose.updateAll();
+      expect(items[0].quality).toBe(result);
+  })
+});
