@@ -8,6 +8,7 @@ class Item {
 
 class Shop {
   constructor(items = []) {
+    
     this.items = items;
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
@@ -15,6 +16,8 @@ class Shop {
     this.conjuredItem = 'ConjuredItem';
     this.normalItem = 'NormalItem';
 
+    // not shop settings, items additional information, so how to rename it?
+    // or directly remove this.settings, and use this.items directly?
     this.settings = [];
     this.settingMap = {
       'LegendaryItem': 'Sulfuras',
@@ -70,67 +73,91 @@ class Shop {
     }
   }
 
-  updateSellIn() {
+  updateSellIn(dayLimits) {
     for (let item of this.items) {
+      // what if conjuredItem sellIn remained unchanged
+      // 10 items - how many handler instance will have?
+      // a. 10 legendary items
+      // b. 5 legendary items  , 5 conjured items
+      // min handler will be enough?
+
+      // do not use if-else , what are the alternative?
       if (this.settings.find((i)=>i.type == this.legendaryItem)){
-        new LegendaryItemHandler().updateSellIn(item);
+        new LegendaryItemHandler(dayLimits).updateSellIn(item);
       }else {
-        new ItemHandler().updateSellIn(item);
+        new ItemHandler(dayLimits).updateSellIn(item);
       }
     }
   }
 
-  updateQuality() {
+  // validate this.settings - what is it then?
+  updateQuality(dayLimits) {
+
+    // function name (.validate) - ensure what?
     new Validator().validate(this.settings, (item => item.name));
     for (let item of this.items) {
-        this.settings.find((i)=>{
-          if(i.name == item.name){
-            new i.itemHandler().updateQuality(item);
-          }
-        })      
+        // this.settings.find((i)=>{
+        //   if(i.name == item.name){
+            new item.itemHandler(dayLimits).updateQuality(item);
+        //   }
+        // })      
     }
   }
 
-  updateAll() {
-    this.updateSellIn();
-    this.updateQuality();
+  updateAll(dayLimits) {
+    // must not change the order of execution
+    // return this.settings;
+    this.updateSellIn(dayLimits);
+    this.updateQuality(dayLimits);
     return this.items;
   }
 }
 
 
 class Validator {
+  constructor(){
+
+  }
   validate(list, validateItem) {
     let validatedArr = (list).map(validateItem);
     var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
     if (isDuplicate == true) {
       throw new Error(`${validateItem} has duplicate items, please check again!`);
     } else {
+      // rule 1 - cannot duplicate (catered); rule 2 - cannot be empty (NOT YET catered!)
+      // validateItem -> need to describe more accurately because it is actually a function
+      // is 'return' necessary?
       return
     }
   }
 }
 
+
 class ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     this.minQuality = 0;
     this.maxQuality = 50;
     this.changedQuality = 1;
     this.changedSellIn = -1;
     this.minDayLimit = 0;
-    this.dayLimits = [
-      { day: 100, changedQuality: 1 },
-      { day: 10, changedQuality: 1 },
-      { day: 5, changedQuality: 1 },
-    ];
+
+    // this.dayLimits = pass in? or default empty array
+    // this.dayLimit==[]?[]: dayLimits;
+    
+    this.dayLimits = [];
+    this.dayLimits = dayLimits;
   }
 
   updateSellIn(item) {
     item.sellIn += this.changedSellIn;
   }
-  changeQuality(item) {
+  changeQuality(item, changedquality) {
     item.quality += this.changedQuality;
   }
+
+  // + updateQuality(item){}
+    // rename - because validate only check, not change the original item
+  // Validator vs rules
   validateQuality(item) {
     if (item.quality <= this.minQuality) {
       item.quality = this.minQuality;
@@ -143,11 +170,12 @@ class ItemHandler {
 }
 
 class LegendaryItemHandler extends ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     super();
     this.changedQuality = 0;
     this.maxQuality = 80;
     this.minQuality = 80;
+    this.dayLimits = dayLimits;
   }
   updateSellIn(item) {
     item.sellIn = item.sellIn;
@@ -156,14 +184,16 @@ class LegendaryItemHandler extends ItemHandler {
     this.changeQuality(item);
     this.validateQuality(item);
   }
+
   validateQuality(item) {
     item.quality = this.maxQuality;
   }
 }
 
 class EpicItemHandler extends ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     super();
+    this.dayLimits = dayLimits;
   }
   updateQuality(item) {
     this.changeQuality(item);
@@ -175,26 +205,33 @@ class EpicItemHandler extends ItemHandler {
 }
 
 class BackstagePassItemHandler extends ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     super();
+    this.dayLimits = dayLimits;
   }
   updateQuality(item) {
     new Validator().validate(this.dayLimits, (item => item.day));
-
+    // rename dayLimit - too specific
     for (let dayLimit of this.dayLimits) {
       if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
-        item.quality += dayLimit.changedQuality;
+        changeQuality(item, dayLimit.changedQuality)
     }
+    // may consider change the statement to method in itemHandler;
     if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
     this.validateQuality(item);
   }
 }
 
+// what if normalItemHandler to replace conjuredItemHandler?
 class ConjuredItemHandler extends ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     super();
+    // check check how to name changedQuality
     this.changedQuality = -2;
+    this.dayLimits = dayLimits;
   }
+
+  // changeQuality
   updateQuality(item) {
     this.changeQuality(item);
     if (item.sellIn < this.minDayLimit) {
@@ -205,9 +242,10 @@ class ConjuredItemHandler extends ItemHandler {
 }
 
 class NormalItemHandler extends ItemHandler {
-  constructor() {
+  constructor(dayLimits) {
     super();
     this.changedQuality = -1;
+    this.dayLimits = dayLimits;
   }
   updateQuality(item) {
     this.changeQuality(item);
@@ -220,6 +258,7 @@ class NormalItemHandler extends ItemHandler {
 
 module.exports = {
   Item,
-  Shop
+  Shop,
+  Validator
 }
 

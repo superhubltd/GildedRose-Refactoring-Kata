@@ -1,5 +1,17 @@
-const {Shop, Item} = require("../src/gilded_rose");
+const {Shop,  Item, Validator} = require("../src/gilded_rose");
 
+const dayLimits = [
+  { day: 100, changedQuality: 1 },
+  { day: 10, changedQuality: 1 },
+  { day: 5, changedQuality: 1 }
+]
+
+const duplicateDayLimits = [
+  { day: 100, changedQuality: 1 },
+  { day: 10, changedQuality: 1 },
+  { day: 10, changedQuality: 1 },
+  { day: 5, changedQuality: 1 }
+]
 describe("[Gilded Rose] 1. Condition: a. name not agedBrie, backStage, sulfuras b. quality > 0;  Output: quality - 1", () =>{
   it.each([
     [new Item("curious", 1, 1), 0],
@@ -14,7 +26,7 @@ describe("[Gilded Rose] 1. Condition: a. name not agedBrie, backStage, sulfuras 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
     expect(items[0].quality).toBe(result)
   });
 });
@@ -39,7 +51,7 @@ describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -55,7 +67,7 @@ describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality <
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -79,7 +91,7 @@ describe("[Gilded Rose] 3.i Condition: a. name = backStage b. sellIn < 12 c. qua
       [
           samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -122,7 +134,7 @@ describe("[Gilded Rose] 3.i Condition: a. name = backStage b. 6 < sellIn <= 11 c
       [
           samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -139,7 +151,7 @@ describe("[Gilded Rose] 3.ii Condition: a. name = backStage b. 6 < sellIn <= 11 
       [
           samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -185,7 +197,7 @@ describe("[Gilded Rose] 4.i Condition: a. name = backStage b. 0 <= sellIn <= 6 c
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -210,7 +222,7 @@ describe("[Gilded Rose] 4.ii Condition: a. name = backStage b. 0 < sellIn < 6 c.
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   });
 });
@@ -242,7 +254,7 @@ describe("[Gilded Rose] 5.i Condition: a. name = sulfuras; Output: sellIn unchan
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].sellIn).toBe(result);
   })
 });
@@ -258,7 +270,7 @@ describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-5
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].sellIn).toBe(result);
   })
 });
@@ -278,7 +290,7 @@ describe("[Gilded Rose] 5.iii Condition: a. name not sulfuras; Output: sellIn - 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].sellIn).toBe(result); 
   })
 });
@@ -307,7 +319,7 @@ describe("[Gilded Rose] 6.i Condition: a. name not AgedBrie, backStage, sulfuras
       [
         samples,
       ])
-      let items = gildedRose.updateAll();
+      let items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -327,7 +339,7 @@ describe("[Gilded Rose] 6.ii Condition: a. name not AgedBrie, backStage, sulfura
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -343,7 +355,7 @@ describe("[Gilded Rose] 6.iii Condition: a. name not AgedBrie, backStage, sulfur
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -358,7 +370,7 @@ describe("[Gilded Rose] 6.iv Condition: a. name not AgedBrie, backStage, sulfura
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -375,7 +387,7 @@ describe("[Gilded Rose] 6.v Condition: a. name not AgedBrie, backStage, sulfuras
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -400,7 +412,7 @@ describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStag
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 
@@ -423,7 +435,7 @@ describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backSta
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 
@@ -453,7 +465,7 @@ describe("[Gilded Rose] 8.i Condition: a. name agedBrie b. sellIn <= 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -469,7 +481,7 @@ describe("[Gilded Rose] 8.ii Condition: a. name agedBrie b. sellIn <= 0 c. quali
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -501,7 +513,7 @@ describe("[Gilded Rose] 8.iii Condition: a. name agedBrie b. 0 < sellIn <= 6  c.
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -540,7 +552,7 @@ describe("[Gilded Rose] 8.iv Condition: a. name agedBrie b. 6 < sellIn <= 11 c. 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -572,7 +584,7 @@ describe("[Gilded Rose] 8.v Condition: a. name not agedBrie b. 6 < sellIn <= 11 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -607,7 +619,7 @@ describe("[Gilded Rose] 8.vi Condition: a. name not agedBrie b. 0 < sellIn <= 6 
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -631,7 +643,7 @@ describe("[Gilded Rose] 9. Condition: a. name backStage b. sellIn <= 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -648,7 +660,7 @@ describe("[Gilded Rose] 10.i Condition: a. name sulfaras b. sellIn > 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -664,7 +676,7 @@ describe("[Gilded Rose] 10.ii Condition: a. name sulfaras b. sellIn <= 0 c. qual
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -683,7 +695,7 @@ describe("[Gilded Rose] 11.i Condition: a. name conjured b. sellIn > 0 c. qualit
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -704,7 +716,7 @@ describe("[Gilded Rose] 11.ii Condition: a. name conjured b. sellIn <= 0 c. qual
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -728,7 +740,7 @@ describe("[Gilded Rose] 11.iii Condition: a. name conjured b. sellIn > 0 c. qual
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
@@ -758,7 +770,88 @@ describe("[Gilded Rose] 11.iv Condition: a. name conjured b. sellIn <= 0 c. qual
       [
         samples,
       ])
-      const items = gildedRose.updateAll();
+      const items = gildedRose.updateAll(dayLimits);
       expect(items[0].quality).toBe(result);
   })
 });
+
+describe("[Gilded Rose] 12.i Condition: a. validator b. dayLimits list - no duplicate items; Output: do not throw error", ()=>{
+  it.each([
+    [new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49), 0], 
+
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      try{
+        const items = gildedRose.updateAll(dayLimits);
+        expect(items[0].quality).toBe(result);
+      }catch(err){
+        console.log(err)
+      } 
+  })
+});
+
+describe("[Gilded Rose] 12.ii Condition: a. validator b. dayLimits list - duplicate items; Output: throw error", ()=>{
+  it.each([
+    [new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49)], 
+
+  ])('Original item: %p expecting %p',(samples)=>{
+    const gildedRose = new Shop(
+      [
+        samples,
+      ])
+      try{
+        const err = gildedRose.updateAll(duplicateDayLimits);
+      }catch(err){
+        expect(err.message).toBe('item => item.day has duplicate items, please check again!');
+      } 
+  })
+});
+
+
+describe("[Gilded Rose] 12.iii Condition: a. validator b. setting list - do not have duplicate items; Output: do not throw error", ()=>{
+  it.each([
+    [
+      [
+        new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
+        new Item("Conjured", 1, 50),
+      ]
+    ], 
+  ])('Original item: %p expecting %p',(samples)=>{
+    const gildedRose = new Shop(
+        samples,
+      )
+        const items = gildedRose.updateAll(dayLimits);
+        expect(items[0].quality).toBe(0);
+      
+      
+  })
+});
+
+
+describe("[Gilded Rose] 12.iv Condition: a. validator b. setting list - duplicate items; Output: throw error", ()=>{
+  it.each([
+    [
+      [
+        new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
+        new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
+        new Item("Conjured", 1, 50),
+      ]
+    ], 
+
+  ])('Original item: %p expecting %p',(samples)=>{
+    const gildedRose = new Shop(
+        samples,
+      )
+      try{
+        const items = gildedRose.updateAll(dayLimits);
+      }catch(err){
+        expect(err.message).toBe('item => item.name has duplicate items, please check again!');
+      }
+      
+      
+  })
+});
+
