@@ -9,114 +9,83 @@ class Item {
 class Shop {
   constructor(items = []) {
     this.items = items;
-    this.agedBrie = 'Aged Brie';
-    this.agedRum = 'Aged Rum';
-    this.agedCheese = 'Aged Cheese';
-    this.backStage = 'Backstage passes to a TAFKAL80ETC concert';
-    this.backStage2 = 'Backstage passes to a TAFKAL80ETC concert - version 2';
-    this.curious = 'curious';
-    this.generous = 'Generous';
-    this.creature = 'Creature';
-    this.fantasy = 'Fantasy';
-    this.soulgem = 'Soulgem';
-    this.conjured = 'Conjured';
-    this.sulfuras = 'Sulfuras, Hand of Ragnaros';
-    this.sulfuras2 = 'Sulfuras, Hand of Ragnaros v2';
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
     this.backstagePassItem = 'BackstagePassItem';
     this.conjuredItem = 'ConjuredItem';
     this.normalItem = 'NormalItem';
 
-    this.settings = [
-      { name: this.sulfuras, type: this.legendaryItem },
-      { name: this.sulfuras2, type: this.legendaryItem },
-      { name: this.agedBrie, type: this.epicItem },
-      { name: this.agedRum, type: this.epicItem },
-      { name: this.agedCheese, type: this.epicItem },
-      { name: this.backStage, type: this.backstagePassItem },
-      { name: this.backStage2, type: this.backstagePassItem },
-      { name: this.curious, type: this.normalItem },
-      { name: this.generous, type: this.normalItem },
-      { name: this.creature, type: this.normalItem },
-      { name: this.fantasy, type: this.normalItem },
-      { name: this.soulgem, type: this.normalItem },
-      { name: this.conjured, type: this.conjuredItem },
-    ];
+    this.settings = [];
+    this.settingMap = {
+      'LegendaryItem': 'Sulfuras',
+      'EpicItem': 'Aged',
+      'BackstagePassItem': 'Backstage passes',
+      'ConjuredItem': 'Conjured',
+    }
 
+    this.setUp();
 
     this.categories = this.settings.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
     }, {})
 
-    this.settings2 = [];
-    this.settingMap = {
-      'Sulfuras': this.legendaryItem,
-      'Backstage passes':this.backstagePassItem,
-      'Aged':this.epicItem,
-      'Conjured': this.conjuredItem,
-    }
-
-    this.setUp();
-
     this.handlerMap = {
-      'LegendaryItem': LegendaryItemHandler, 
+      'LegendaryItem': LegendaryItemHandler,
       'EpicItem': EpicItemHandler,
       'BackstagePassItem': BackstagePassItemHandler,
       'ConjuredItem': ConjuredItemHandler,
       'NormalItem': NormalItemHandler
     }
-    
-    this.categorize();  
-
-    console.log(this.settings2);
+    this.categorize();
   }
 
-  setUp(){
+  setUp() {
+    for (let item of this.items) {
+      let type = null;
+      for (const [key, value] of Object.entries(this.settingMap)) {
+        if (item.name.includes(value)) {
+          type = key; // need to check if it belongs to specific type // Y/N that type
+        }
+      }
+      if (type == null) {
+        type = this.normalItem;
+      }
 
-    let notNormalItem = false;
-    for(let item of this.items){
-      for(const [key,value] of Object.entries(this.settingMap)){
-        if(item.name.includes(key)){
-          this.settings2.push({name: item.name, type: value})
-          notNormalItem = true;
-      }
-      }
-      if(notNormalItem==false)
-          this.settings2.push({name: item.name, type: this.normalItem})
+      this.settings.push({ 
+        name: item.name, 
+        sellIn: item.sellIn, 
+        quality: item.quality, 
+        type: type })
     }
+    // getTypeByItemName - function
   }
 
-  categorize(){
-    for(const [key,value] of Object.entries(this.handlerMap)){
-      this.categories[`${key}`].map((item => Object.assign(item, { itemHandler: value })))
+  categorize() {
+    // Assume all category keys can be found in handlerMap.
+    for (const [key, value] of Object.entries(this.categories)) {
+      value.map((item => Object.assign(item, { itemHandler: this.handlerMap[key] })))
     }
   }
 
   updateSellIn() {
     for (let item of this.items) {
-      if (this.categories[this.legendaryItem].find((i) => i.name == item.name)) {
+      if (this.settings.type = this.legendaryItem){
         new LegendaryItemHandler().updateSellIn(item);
-      } else {
+      }else {
         new ItemHandler().updateSellIn(item);
       }
     }
-
   }
-
 
   updateQuality() {
     new Validator().validate(this.settings, (item => item.name));
-
     for (let item of this.items) {
-      for (let subCategory in this.categories) {
-        this.categories[subCategory].find((subItem) => {
-          if (subItem.name == item.name) {
-            new subItem.itemHandler().updateQuality(item);
+        this.settings.find((i)=>{
+          if(i.name == item.name){
+            new i.itemHandler().updateQuality(item);
           }
-        })
-      }
+        })      
     }
   }
 
