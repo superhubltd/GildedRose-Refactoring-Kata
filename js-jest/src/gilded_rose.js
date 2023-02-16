@@ -58,8 +58,10 @@ class Shop {
         quality: item.quality, 
         type: type })
     }
-    // getTypeByItemName - function
+    //    getTypeByItemName(){}- function
   }
+
+
 
   categorize() {
     // Assume all category keys can be found in handlerMap.
@@ -70,7 +72,7 @@ class Shop {
 
   updateSellIn() {
     for (let item of this.items) {
-      if (this.settings.type = this.legendaryItem){
+      if (this.settings.find((i)=>i.type == this.legendaryItem)){
         new LegendaryItemHandler().updateSellIn(item);
       }else {
         new ItemHandler().updateSellIn(item);
@@ -195,6 +197,9 @@ class ConjuredItemHandler extends ItemHandler {
   }
   updateQuality(item) {
     this.changeQuality(item);
+    if (item.sellIn < this.minDayLimit) {
+      this.changeQuality(item);
+    }
     this.validateQuality(item);
   }
 }
