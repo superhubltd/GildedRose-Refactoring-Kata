@@ -31,26 +31,32 @@ class Shop {
       return categories;
     }, {})
 
-    this.handlerMap = {
-      'LegendaryItem': LegendaryItemHandler,
-      'EpicItem': EpicItemHandler,
-      'BackstagePassItem': BackstagePassItemHandler,
-      'ConjuredItem': ConjuredItemHandler,
-      'NormalItem': NormalItemHandler
-    }
-    this.sellInChangeMap = {
-      'LegendaryItem': 0,
-      'EpicItem': -1,
-      'BackstagePassItem': -1,
-      'ConjuredItem': -1,
-      'NormalItem': -1
-    }
-    this.qualityChangeMap = {
-      'LegendaryItem': 0,
-      'EpicItem': 1,
-      'BackstagePassItem': 1,
-      'ConjuredItem': -2,
-      'NormalItem': -1
+    this.propertiesMap = {
+      'LegendaryItem': { 
+        itemHandler: LegendaryItemHandler, 
+        sellInChange: 0, 
+        qualityChange: 0 
+      },
+      'EpicItem': { 
+        itemHandler: EpicItemHandler, 
+        sellInChange: -1, 
+        qualityChange: 1 
+      },
+      'BackstagePassItem': { 
+        itemHandler: BackstagePassItemHandler, 
+        sellInChange: -1, 
+        qualityChange: 1 
+      },
+      'ConjuredItem': { 
+        itemHandler: ConjuredItemHandler, 
+        sellInChange: -1, 
+        qualityChange: -2 
+      },
+      'NormalItem': { 
+        itemHandler: NormalItemHandler, 
+        sellInChange: -1, 
+        qualityChange: -1 
+      },
     }
 
     this.assignItemProperties()
@@ -82,10 +88,10 @@ class Shop {
   assignItemProperties() {
     // Assume all category keys can be found in handlerMap.
     for (const [key, value] of Object.entries(this.categorizedItems)) {
-      value.map((item => Object.assign(item, { 
-        itemHandler: this.handlerMap[key], 
-        sellInChange: this.sellInChangeMap[key], 
-        qualityChange: this.qualityChangeMap[key], 
+      value.map((item => Object.assign(item, {
+        itemHandler: this.propertiesMap[key].itemHandler,
+        sellInChange: this.propertiesMap[key].sellInChange,
+        qualityChange: this.propertiesMap[key].qualityChange,
       })))
     }
   }
@@ -95,7 +101,6 @@ class Shop {
       new item.itemHandler(conditions).updateSellIn(item, item.sellInChange);
     }
   }
-
 
   updateQuality(conditions) {
     new Validator().validateDuplicates(this.items, (item => item.name));
@@ -175,7 +180,7 @@ class EpicItemHandler extends ItemHandler {
     this.conditions = conditions;
   }
   updateQuality(item, qualityChange) {
-    this.changeQuality(item,qualityChange);
+    this.changeQuality(item, qualityChange);
     if (item.sellIn < this.minSellInDay) {
       this.changeQuality(item, qualityChange);
     }
@@ -210,7 +215,7 @@ class NormalItemHandler extends ItemHandler {
     super();
     this.conditions = conditions;
   }
-    // changeQuality
+  // changeQuality
   updateQuality(item, qualityChange) {
     this.changeQuality(item, qualityChange);
     if (item.sellIn < this.minSellInDay) {
