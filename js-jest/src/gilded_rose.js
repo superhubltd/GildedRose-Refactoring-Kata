@@ -38,7 +38,7 @@ class Shop {
     }
     this.assignItemHandler();
 
-    console.log('this items: ', this.items);
+
   }
 
   assignItemType() {
@@ -65,7 +65,7 @@ class Shop {
     }
   }
 
-  updateSellIn(dayLimits) {
+  updateSellIn(sellInConditions) {
     for (let item of this.items) {
       // what if conjuredItem sellIn remained unchanged
       // 10 items - how many handler instance will have?
@@ -75,31 +75,27 @@ class Shop {
 
       // do not use if-else , what are the alternative?
       if (this.items.find((i)=>i.type == this.legendaryItem)){
-        new LegendaryItemHandler(dayLimits).updateSellIn(item);
+        new LegendaryItemHandler(sellInConditions).updateSellIn(item);
       }else {
-        new ItemHandler(dayLimits).updateSellIn(item);
+        new ItemHandler(sellInConditions).updateSellIn(item);
       }
     }
   }
 
   // validate this.settings - what is it then?
-  updateQuality(dayLimits) {
+  updateQuality(sellInConditions) {
 
     // function name (.validate) - ensure what?
-    new Validator().validate(this.items, (item => item.name));
+    new Validator().validateDuplicates(this.items, (item => item.name));
     for (let item of this.items) {
-        // this.settings.find((i)=>{
-        //   if(i.name == item.name){
-            new item.itemHandler(dayLimits).updateQuality(item);
-        //   }
-        // })      
+      new item.itemHandler(sellInConditions).updateQuality(item);   
     }
   }
 
-  updateAll(dayLimits) {
+  updateAll(sellInConditions) {
     // must not change the order of execution
-    this.updateSellIn(dayLimits);
-    this.updateQuality(dayLimits);
+    this.updateSellIn(sellInConditions);
+    this.updateQuality(sellInConditions);
     return this.items;
   }
 }
@@ -109,7 +105,7 @@ class Validator {
   constructor(){
 
   }
-  validate(list, validateItem) {
+  validateDuplicates(list, validateItem) {
     let validatedArr = (list).map(validateItem);
     var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
     if (isDuplicate == true) {
@@ -125,124 +121,133 @@ class Validator {
 
 
 class ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     this.minQuality = 0;
     this.maxQuality = 50;
-    this.changedSellIn = -1;
-    this.minDayLimit = 0;
+    this.SellInChange = -1;
+    this.minSellInDay = 0;
 
-    // this.dayLimits = pass in? or default empty array
-    // this.dayLimit==[]?[]: dayLimits;
+    // this.sellInConditions = pass in? or default empty array
+    // this.sellInCondition==[]?[]: sellInConditions;
     
-    this.dayLimits = [];
-    this.dayLimits = dayLimits;
+    this.sellInConditions = [];
+    this.sellInConditions = sellInConditions;
   }
 
   updateSellIn(item) {
-    item.sellIn += this.changedSellIn;
-  }
-  changeQuality(item, qualityUnit) {
-    item.quality += qualityUnit;
+    item.sellIn += this.SellInChange;
   }
 
-  // + updateQuality(item){}
-    // rename - because validate only check, not change the original item
-  // Validator vs rules
+  // updateQuality may be overwritten by different combination of changeQuality method. 
+  updateQuality(item, qualityChange) {
+    this.changeQuality(item,qualityChange);
+  }
+
+  // changeQuality method acts like a building unit of updateQuality method.
+  changeQuality(item, qualityChange) {
+    item.quality += qualityChange;
+  }
+
   adjustQuality(item) {
     if (item.quality <= this.minQuality) {
-      item.quality = this.minQuality;
+      this.minimizeQuality(item);
     }
     else if (item.quality >= this.maxQuality) {
-      item.quality = this.maxQuality;
+      this.maximizeQuality(item);
     }
   }
 
+  maximizeQuality(item){
+    item.quality = this.maxQuality;
+  }
+
+  minimizeQuality(item){
+    item.quality = this.minQuality;
+  }
 }
 
 class LegendaryItemHandler extends ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     super();
-    this.qualityUnit = 0;
+    this.qualityChange = 0;
     this.maxQuality = 80;
     this.minQuality = 80;
-    this.dayLimits = dayLimits;
+    this.sellInConditions = sellInConditions;
   }
   updateSellIn(item) {
     item.sellIn = item.sellIn;
   }
   updateQuality(item) {
-    this.changeQuality(item, this.qualityUnit);
+    this.changeQuality(item, this.qualityChange);
     this.adjustQuality(item);
   }
-
   adjustQuality(item) {
     item.quality = this.maxQuality;
   }
 }
 
 class EpicItemHandler extends ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     super();
-    this.qualityUnit = 1;
-    this.dayLimits = dayLimits;
+    this.qualityChange = 1;
+    this.sellInConditions = sellInConditions;
   }
   updateQuality(item) {
-    this.changeQuality(item, this.qualityUnit);
-    if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item, this.qualityUnit);
+    this.changeQuality(item, this.qualityChange);
+    if (item.sellIn < this.minSellInDay) {
+      this.changeQuality(item, this.qualityChange);
     }
     this.adjustQuality(item);
   }
 }
 
 class BackstagePassItemHandler extends ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     super();
-    this.dayLimits = dayLimits;
+    this.sellInConditions = sellInConditions;
   }
   updateQuality(item) {
-    new Validator().validate(this.dayLimits, (item => item.day));
-    // rename dayLimit - too specific
-    // changedQuality vs changeQuality
-    for (let dayLimit of this.dayLimits) {
-      if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
-        this.changeQuality(item, dayLimit.changedQuality);
+    new Validator().validateDuplicates(this.sellInConditions, (item => item.day));
+
+    for (let sellInCondition of this.sellInConditions) {
+      if (item.sellIn >= this.minSellInDay && item.sellIn <= sellInCondition.day)
+        this.changeQuality(item, sellInCondition.qualityChange);
     }
-    // may consider change the statement to method in itemHandler;
-    if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
+
+    if (item.sellIn < this.minSellInDay) 
+    this.minimizeQuality(item);
     this.adjustQuality(item);
   }
 }
 
 // what if normalItemHandler to replace conjuredItemHandler?
 class ConjuredItemHandler extends ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     super();
-    // check check how to name changedQuality
-    this.qualityUnit = -2;
-    this.dayLimits = dayLimits;
+    this.qualityChange = -2;
+    this.sellInConditions = sellInConditions;
   }
 
   // changeQuality
   updateQuality(item) {
-    this.changeQuality(item, this.qualityUnit);
-    if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item, this.qualityUnit);
+    this.changeQuality(item, this.qualityChange);
+    if (item.sellIn < this.minSellInDay) {
+      this.changeQuality(item, this.qualityChange);
     }
     this.adjustQuality(item);
   }
 }
 
 class NormalItemHandler extends ItemHandler {
-  constructor(dayLimits) {
+  constructor(sellInConditions) {
     super();
-    this.changedQuality = -1;
-    this.dayLimits = dayLimits;
+    this.qualityChange = -1;
+    this.sellInConditions = sellInConditions;
   }
   updateQuality(item) {
-    this.changeQuality(item, this.changedQuality);
-    if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item, this.changedQuality);
+    this.changeQuality(item, this.qualityChange);
+    if (item.sellIn < this.minSellInDay) {
+      this.changeQuality(item, this.qualityChange);
     }
     this.adjustQuality(item);
   }
