@@ -12,6 +12,20 @@ class Shop {
     this.items = items;
     this.normalItem = 'NormalItem';
     this.helper = new Validator();
+    this.enhancedHelper = new DynamicValidator({
+      name: [
+        new RequiredRule('Name is required'),
+        new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number.`),
+      ],
+      sellIn: [
+        new RequiredRule('SellIn is required'),
+        new minValueRule(5, `Item's sellIn must be more than or equal to 0.`)
+      ],
+      quality: [
+        new RequiredRule('Quality is required'),
+        new minValueRule(0, `Item's quality must be more than or equal to 0.`)
+      ]
+    })
 
     // rename itemsMap - ask Poe (need to be more self-descriptive)
     this.itemsMap = {
@@ -215,13 +229,6 @@ class ConjuredItemHandler extends NormalItemHandler {
   }
 }
 
-// change to dynamic validator
-
-// helper class
-// must be 2 types of items
-// item.name cannot be more than 100 characters
-// sellIn cannot be less than 5;
-// quality cannot be 0?
 
 class Validator {
   constructor() {
@@ -249,16 +256,38 @@ class Validator {
   }
 }
 
+// change to dynamic validator
+
+// helper class
+// must be 2 types of items
+// item.name cannot be more than 100 characters
+// sellIn cannot be less than 5;
+// quality cannot be 0?
+
+// item
 class MaxLengthRule {
   constructor(maxLength, errorMessage) {
     this.maxLength = maxLength;
     this.errorMessage = errorMessage;
   }
   validate(item) {
-    return item.name.length > maxLength ? this.errorMessage : null;
+    return item > maxLength ? this.errorMessage : null;
   }
 }
 
+// item
+class minValueRule{
+  constructor(minValue, errorMessage) {
+    this.minValue = minValue;
+    this.errorMessage = errorMessage;
+  }
+  validate(item) {
+    return item.length > minValue ? this.errorMessage : null;
+  }
+}
+
+
+// itemList
 class NotEmptyRule {
   constructor(minLength, errorMessage) {
     this.minLength = minLength;
@@ -269,6 +298,7 @@ class NotEmptyRule {
   }
 }
 
+// itemList
 class NotDuplicatesRule {
   constructor() {
     this.errorMessage = errorMessage;
@@ -280,12 +310,47 @@ class NotDuplicatesRule {
   }
 }
 
+// item
+class RequiredRule {
+  constructor(errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+
+  validate(value) {
+    return value === undefined || value === null || value === ''
+      ? this.errorMessage
+      : null;
+  }
+}
+
+// item
 class NotNonItemRule {
   constructor() {
     this.errorMessage = errorMessage;
   }
   validate(item){
     !(item instanceof Item) == true? this.errorMessage: null;
+  }
+}
+
+class DynamicValidator{
+  constructor(rules){
+    this.rules = rules;
+  }
+  validate(data) {
+    let errors = {};
+    for (let field in this.rules) {
+      let fieldRules = this.rules[field];
+      for (let rule of fieldRules) {
+        let errorMessage = rule.validate(data[field]);
+        if (errorMessage) {
+          errors[field] = errorMessage;
+          break;
+        }
+      }
+    }
+    this.errors = errors;
+    return Object.keys(errors).length === 0;
   }
 }
 
