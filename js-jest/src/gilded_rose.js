@@ -22,7 +22,7 @@ class Shop {
       'ConjuredItem': 'Conjured',
     }
 
-    this.setUp();
+    this.assignItemType();
 
     this.categories = this.items.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
@@ -36,12 +36,12 @@ class Shop {
       'ConjuredItem': ConjuredItemHandler,
       'NormalItem': NormalItemHandler
     }
-    this.categorize();
+    this.assignItemHandler();
 
     console.log('this items: ', this.items);
   }
 
-  setUp() {
+  assignItemType() {
     for (let item of this.items) {
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
@@ -58,9 +58,7 @@ class Shop {
     //    getTypeByItemName(){}- function
   }
 
-
-
-  categorize() {
+  assignItemHandler() {
     // Assume all category keys can be found in handlerMap.
     for (const [key, value] of Object.entries(this.categories)) {
       value.map((item => Object.assign(item, { itemHandler: this.handlerMap[key] })))
@@ -130,7 +128,6 @@ class ItemHandler {
   constructor(dayLimits) {
     this.minQuality = 0;
     this.maxQuality = 50;
-    this.changedQuality = 1;
     this.changedSellIn = -1;
     this.minDayLimit = 0;
 
@@ -144,14 +141,14 @@ class ItemHandler {
   updateSellIn(item) {
     item.sellIn += this.changedSellIn;
   }
-  changeQuality(item, changedquality) {
-    item.quality += this.changedQuality;
+  changeQuality(item, qualityUnit) {
+    item.quality += qualityUnit;
   }
 
   // + updateQuality(item){}
     // rename - because validate only check, not change the original item
   // Validator vs rules
-  validateQuality(item) {
+  adjustQuality(item) {
     if (item.quality <= this.minQuality) {
       item.quality = this.minQuality;
     }
@@ -165,7 +162,7 @@ class ItemHandler {
 class LegendaryItemHandler extends ItemHandler {
   constructor(dayLimits) {
     super();
-    this.changedQuality = 0;
+    this.qualityUnit = 0;
     this.maxQuality = 80;
     this.minQuality = 80;
     this.dayLimits = dayLimits;
@@ -174,11 +171,11 @@ class LegendaryItemHandler extends ItemHandler {
     item.sellIn = item.sellIn;
   }
   updateQuality(item) {
-    this.changeQuality(item);
-    this.validateQuality(item);
+    this.changeQuality(item, this.qualityUnit);
+    this.adjustQuality(item);
   }
 
-  validateQuality(item) {
+  adjustQuality(item) {
     item.quality = this.maxQuality;
   }
 }
@@ -186,14 +183,15 @@ class LegendaryItemHandler extends ItemHandler {
 class EpicItemHandler extends ItemHandler {
   constructor(dayLimits) {
     super();
+    this.qualityUnit = 1;
     this.dayLimits = dayLimits;
   }
   updateQuality(item) {
-    this.changeQuality(item);
+    this.changeQuality(item, this.qualityUnit);
     if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item);
+      this.changeQuality(item, this.qualityUnit);
     }
-    this.validateQuality(item);
+    this.adjustQuality(item);
   }
 }
 
@@ -208,11 +206,11 @@ class BackstagePassItemHandler extends ItemHandler {
     // changedQuality vs changeQuality
     for (let dayLimit of this.dayLimits) {
       if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
-        changeQuality(item, dayLimit.changedQuality)
+        this.changeQuality(item, dayLimit.changedQuality);
     }
     // may consider change the statement to method in itemHandler;
     if (item.sellIn < this.minDayLimit) item.quality = this.minQuality;
-    this.validateQuality(item);
+    this.adjustQuality(item);
   }
 }
 
@@ -221,17 +219,17 @@ class ConjuredItemHandler extends ItemHandler {
   constructor(dayLimits) {
     super();
     // check check how to name changedQuality
-    this.changedQuality = -2;
+    this.qualityUnit = -2;
     this.dayLimits = dayLimits;
   }
 
   // changeQuality
   updateQuality(item) {
-    this.changeQuality(item);
+    this.changeQuality(item, this.qualityUnit);
     if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item);
+      this.changeQuality(item, this.qualityUnit);
     }
-    this.validateQuality(item);
+    this.adjustQuality(item);
   }
 }
 
@@ -242,11 +240,11 @@ class NormalItemHandler extends ItemHandler {
     this.dayLimits = dayLimits;
   }
   updateQuality(item) {
-    this.changeQuality(item);
+    this.changeQuality(item, this.changedQuality);
     if (item.sellIn < this.minDayLimit) {
-      this.changeQuality(item);
+      this.changeQuality(item, this.changedQuality);
     }
-    this.validateQuality(item);
+    this.adjustQuality(item);
   }
 }
 
