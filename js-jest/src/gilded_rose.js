@@ -7,7 +7,7 @@ class Item {
 }
 
 class Shop {
-  // Assume Items are all instances of Item
+  // Assume Items are all instances of Class Item
   constructor(items = []) {
     this.items = items;
     this.normalItem = 'NormalItem';
@@ -23,52 +23,42 @@ class Shop {
 
     this.assignItemType();
 
-    this.categorizedItems = this.items.reduce((categories, item) => {
-      (categories[item.type] = categories[item.type] || []).push(item);
-      return categories;
-    }, {})
-
-    this.propertiesMap = {
-      'LegendaryItem': { 
-        itemHandler: LegendaryItemHandler, 
-        sellInChange: 0, 
-        qualityChange: 0, 
+    this.strategiesMap = {
+      'LegendaryItem': {
+        itemHandler: LegendaryItemHandler,
+        sellInChange: 0,
+        qualityChange: 0,
       },
-      'EpicItem': { 
-        itemHandler: EpicItemHandler, 
-        sellInChange: -1, 
+      'EpicItem': {
+        itemHandler: EpicItemHandler,
+        sellInChange: -1,
         qualityChange: 1,
       },
-      'BackstagePassItem': { 
-        itemHandler: BackstagePassItemHandler, 
-        sellInChange: -1, 
-        qualityChange: 1, 
+      'BackstagePassItem': {
+        itemHandler: BackstagePassItemHandler,
+        sellInChange: -1,
+        qualityChange: 1,
       },
-      'ConjuredItem': { 
-        itemHandler: ConjuredItemHandler, 
-        sellInChange: -1, 
+      'ConjuredItem': {
+        itemHandler: ConjuredItemHandler,
+        sellInChange: -1,
         qualityChange: -2,
       },
-      'NormalItem': { 
-        itemHandler: NormalItemHandler, 
-        sellInChange: -1, 
-        qualityChange: -1, 
+      'NormalItem': {
+        itemHandler: NormalItemHandler,
+        sellInChange: -1,
+        qualityChange: -1,
       },
     }
 
     this.assignItemProperties()
 
-    // console.log('newItemList: ', Object.keys(this.propertiesMap['LegendaryItem']));
   }
 
-  // helper class
-  // must be 2 types of items
-  // item.name cannot be more than 100 characters
-  // sellIn cannot be less than 5;
-  // quality cannot be 0?
+
   assignItemType() {
     this.helper.validateEmptyItems(this.items);
-    this.items.map(item=>{
+    this.items.map(item => {
       this.helper.validateNonItemObjects(item);
 
       let type = null;
@@ -81,20 +71,22 @@ class Shop {
         type = this.normalItem;
       }
       Object.assign(item, { type: type });
-      }
+    }
     )
   }
 
-  // arrange reduced categorized items inside the assignItemProperties method 
-  // propertiesMap --> strategiesMap[key]
   assignItemProperties() {
     // Assume all category keys can be found in handlerMap.
-  
-    for (const [key, value] of Object.entries(this.categorizedItems)) {
+    const categorizedItems = this.items.reduce((categories, item) => {
+      (categories[item.type] = categories[item.type] || []).push(item);
+      return categories;
+    }, {})
+
+    for (const [key, value] of Object.entries(categorizedItems)) {
       value.map((item => Object.assign(item, {
-        itemHandler: this.propertiesMap[key].itemHandler,
-        sellInChange: this.propertiesMap[key].sellInChange,
-        qualityChange: this.propertiesMap[key].qualityChange,
+        itemHandler: this.strategiesMap[key].itemHandler,
+        sellInChange: this.strategiesMap[key].sellInChange,
+        qualityChange: this.strategiesMap[key].qualityChange,
       })))
     }
   }
@@ -104,7 +96,7 @@ class Shop {
     }
   }
   updateQuality(conditions) {
-    new Validator().validateDuplicates(this.items, (item => item.name));
+    this.helper.validateDuplicates(this.items, (item => item.name));
     for (let item of this.items) {
       new item.itemHandler(conditions).updateQuality(item, item.qualityChange);
     }
@@ -150,11 +142,9 @@ class ItemHandler {
       this.maximizeQuality(item);
     }
   }
-
   maximizeQuality(item) {
     item.quality = this.maxQuality;
   }
-
   minimizeQuality(item) {
     item.quality = this.minQuality;
   }
@@ -167,13 +157,7 @@ class LegendaryItemHandler extends ItemHandler {
     this.minQuality = 80;
     this.conditions = conditions;
   }
-
-  // simplify this handler
   updateQuality(item, qualityChange) {
-    this.changeQuality(item, qualityChange);
-    this.adjustQuality(item);
-  }
-  adjustQuality(item) {
     this.maximizeQuality(item);
   }
 }
@@ -231,6 +215,14 @@ class ConjuredItemHandler extends NormalItemHandler {
   }
 }
 
+// change to dynamic validator
+
+// helper class
+// must be 2 types of items
+// item.name cannot be more than 100 characters
+// sellIn cannot be less than 5;
+// quality cannot be 0?
+
 class Validator {
   constructor() {
 
@@ -256,6 +248,47 @@ class Validator {
 
   }
 }
+
+class MaxLengthRule {
+  constructor(maxLength, errorMessage) {
+    this.maxLength = maxLength;
+    this.errorMessage = errorMessage;
+  }
+  validate(item) {
+    return item.name.length > maxLength ? this.errorMessage : null;
+  }
+}
+
+class NotEmptyRule {
+  constructor(minLength, errorMessage) {
+    this.minLength = minLength;
+    this.errorMessage = errorMessage;
+  }
+  validate(items) {
+    return items.length <= minLength ? this.errorMessage : null;
+  }
+}
+
+class NotDuplicatesRule {
+  constructor() {
+    this.errorMessage = errorMessage;
+  }
+  validate(items, checkFunction) {
+    let validatedArr = (items).map(checkFunction);
+    let isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
+    return isDuplicate == true ? this.errorMessage : null;
+  }
+}
+
+class NotNonItemRule {
+  constructor() {
+    this.errorMessage = errorMessage;
+  }
+  validate(item){
+    !(item instanceof Item) == true? this.errorMessage: null;
+  }
+}
+
 
 module.exports = {
   Item,
