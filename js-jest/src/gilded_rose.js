@@ -8,6 +8,7 @@ class Item {
 
 class Shop {
   constructor(items = []) {
+    
     this.items = items;
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
@@ -37,11 +38,10 @@ class Shop {
       'NormalItem': NormalItemHandler
     }
     this.assignItemHandler();
-
-
   }
 
   assignItemType() {
+    new Validator().validateEmptyItems(this.items);
     for (let item of this.items) {
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
@@ -65,7 +65,7 @@ class Shop {
     }
   }
 
-  updateSellIn(sellInConditions) {
+  updateSellIn(conditions) {
     for (let item of this.items) {
       // what if conjuredItem sellIn remained unchanged
       // 10 items - how many handler instance will have?
@@ -75,27 +75,27 @@ class Shop {
 
       // do not use if-else , what are the alternative?
       if (this.items.find((i)=>i.type == this.legendaryItem)){
-        new LegendaryItemHandler(sellInConditions).updateSellIn(item);
+        new LegendaryItemHandler(conditions).updateSellIn(item);
       }else {
-        new ItemHandler(sellInConditions).updateSellIn(item);
+        new ItemHandler(conditions).updateSellIn(item);
       }
     }
   }
 
   // validate this.settings - what is it then?
-  updateQuality(sellInConditions) {
+  updateQuality(conditions) {
 
     // function name (.validate) - ensure what?
     new Validator().validateDuplicates(this.items, (item => item.name));
     for (let item of this.items) {
-      new item.itemHandler(sellInConditions).updateQuality(item);   
+      new item.itemHandler(conditions).updateQuality(item);   
     }
   }
 
-  updateAll(sellInConditions) {
+  updateAll(conditions) {
     // must not change the order of execution
-    this.updateSellIn(sellInConditions);
-    this.updateQuality(sellInConditions);
+    this.updateSellIn(conditions);
+    this.updateQuality(conditions);
     return this.items;
   }
 }
@@ -110,28 +110,24 @@ class Validator {
     var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
     if (isDuplicate == true) {
       throw new Error(`${validateItem} has duplicate items, please check again!`);
-    } else {
-      // rule 1 - cannot duplicate (catered); rule 2 - cannot be empty (NOT YET catered!)
-      // validateItem -> need to describe more accurately because it is actually a function
-      // is 'return' necessary?
-      return
+    } 
+  }
+
+  validateEmptyItems(items){
+    if(items.length <=0){
+      throw new Error('The itemList is empty!');
     }
   }
 }
 
 
 class ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     this.minQuality = 0;
     this.maxQuality = 50;
     this.SellInChange = -1;
     this.minSellInDay = 0;
-
-    // this.sellInConditions = pass in? or default empty array
-    // this.sellInCondition==[]?[]: sellInConditions;
-    
-    this.sellInConditions = [];
-    this.sellInConditions = sellInConditions;
+    this.conditions==[]?[]: conditions;
   }
 
   updateSellIn(item) {
@@ -148,6 +144,7 @@ class ItemHandler {
     item.quality += qualityChange;
   }
 
+  // adjustQuality method adjust quality when quality goes beyond minQuality and maxQuality.
   adjustQuality(item) {
     if (item.quality <= this.minQuality) {
       this.minimizeQuality(item);
@@ -167,30 +164,28 @@ class ItemHandler {
 }
 
 class LegendaryItemHandler extends ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     super();
     this.qualityChange = 0;
     this.maxQuality = 80;
     this.minQuality = 80;
-    this.sellInConditions = sellInConditions;
-  }
-  updateSellIn(item) {
-    item.sellIn = item.sellIn;
+    this.conditions = conditions;
+    this.SellInChange = 0;
   }
   updateQuality(item) {
     this.changeQuality(item, this.qualityChange);
     this.adjustQuality(item);
   }
   adjustQuality(item) {
-    item.quality = this.maxQuality;
+    this.maximizeQuality(item);
   }
 }
 
 class EpicItemHandler extends ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     super();
     this.qualityChange = 1;
-    this.sellInConditions = sellInConditions;
+    this.conditions = conditions;
   }
   updateQuality(item) {
     this.changeQuality(item, this.qualityChange);
@@ -202,16 +197,16 @@ class EpicItemHandler extends ItemHandler {
 }
 
 class BackstagePassItemHandler extends ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     super();
-    this.sellInConditions = sellInConditions;
+    this.conditions = conditions;
   }
   updateQuality(item) {
-    new Validator().validateDuplicates(this.sellInConditions, (item => item.day));
+    new Validator().validateDuplicates(this.conditions, (item => item.day));
 
-    for (let sellInCondition of this.sellInConditions) {
-      if (item.sellIn >= this.minSellInDay && item.sellIn <= sellInCondition.day)
-        this.changeQuality(item, sellInCondition.qualityChange);
+    for (let condition of this.conditions) {
+      if (item.sellIn >= this.minSellInDay && item.sellIn <= condition.day)
+        this.changeQuality(item, condition.qualityChange);
     }
 
     if (item.sellIn < this.minSellInDay) 
@@ -222,10 +217,10 @@ class BackstagePassItemHandler extends ItemHandler {
 
 // what if normalItemHandler to replace conjuredItemHandler?
 class ConjuredItemHandler extends ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     super();
     this.qualityChange = -2;
-    this.sellInConditions = sellInConditions;
+    this.conditions = conditions;
   }
 
   // changeQuality
@@ -239,10 +234,10 @@ class ConjuredItemHandler extends ItemHandler {
 }
 
 class NormalItemHandler extends ItemHandler {
-  constructor(sellInConditions) {
+  constructor(conditions) {
     super();
     this.qualityChange = -1;
-    this.sellInConditions = sellInConditions;
+    this.conditions = conditions;
   }
   updateQuality(item) {
     this.changeQuality(item, this.qualityChange);
