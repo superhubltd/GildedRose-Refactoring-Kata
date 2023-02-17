@@ -8,7 +8,6 @@ class Item {
 
 class Shop {
   constructor(items = []) {
-    
     this.items = items;
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
@@ -16,10 +15,7 @@ class Shop {
     this.conjuredItem = 'ConjuredItem';
     this.normalItem = 'NormalItem';
 
-    // not shop settings, items additional information, so how to rename it?
-    // or directly remove this.settings, and use this.items directly?
-    this.settings = [];
-    this.settingMap = {
+    this.itemsMap = {
       'LegendaryItem': 'Sulfuras',
       'EpicItem': 'Aged',
       'BackstagePassItem': 'Backstage passes',
@@ -28,7 +24,7 @@ class Shop {
 
     this.setUp();
 
-    this.categories = this.settings.reduce((categories, item) => {
+    this.categories = this.items.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
     }, {})
@@ -41,12 +37,14 @@ class Shop {
       'NormalItem': NormalItemHandler
     }
     this.categorize();
+
+    console.log('this items: ', this.items);
   }
 
   setUp() {
     for (let item of this.items) {
       let type = null;
-      for (const [key, value] of Object.entries(this.settingMap)) {
+      for (const [key, value] of Object.entries(this.itemsMap)) {
         if (item.name.includes(value)) {
           type = key; // need to check if it belongs to specific type // Y/N that type
         }
@@ -55,11 +53,7 @@ class Shop {
         type = this.normalItem;
       }
 
-      this.settings.push({ 
-        name: item.name, 
-        sellIn: item.sellIn, 
-        quality: item.quality, 
-        type: type })
+      Object.assign(item, {type:type});
     }
     //    getTypeByItemName(){}- function
   }
@@ -82,7 +76,7 @@ class Shop {
       // min handler will be enough?
 
       // do not use if-else , what are the alternative?
-      if (this.settings.find((i)=>i.type == this.legendaryItem)){
+      if (this.items.find((i)=>i.type == this.legendaryItem)){
         new LegendaryItemHandler(dayLimits).updateSellIn(item);
       }else {
         new ItemHandler(dayLimits).updateSellIn(item);
@@ -94,7 +88,7 @@ class Shop {
   updateQuality(dayLimits) {
 
     // function name (.validate) - ensure what?
-    new Validator().validate(this.settings, (item => item.name));
+    new Validator().validate(this.items, (item => item.name));
     for (let item of this.items) {
         // this.settings.find((i)=>{
         //   if(i.name == item.name){
@@ -106,7 +100,6 @@ class Shop {
 
   updateAll(dayLimits) {
     // must not change the order of execution
-    // return this.settings;
     this.updateSellIn(dayLimits);
     this.updateQuality(dayLimits);
     return this.items;
@@ -212,6 +205,7 @@ class BackstagePassItemHandler extends ItemHandler {
   updateQuality(item) {
     new Validator().validate(this.dayLimits, (item => item.day));
     // rename dayLimit - too specific
+    // changedQuality vs changeQuality
     for (let dayLimit of this.dayLimits) {
       if (item.sellIn >= this.minDayLimit && item.sellIn <= dayLimit.day)
         changeQuality(item, dayLimit.changedQuality)
