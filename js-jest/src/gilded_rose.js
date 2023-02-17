@@ -38,9 +38,6 @@ class Shop {
       'ConjuredItem': ConjuredItemHandler,
       'NormalItem': NormalItemHandler
     }
-
-    this.assignItemHandler();
-
     this.sellInChangeMap = {
       'LegendaryItem': 0,
       'EpicItem': -1,
@@ -48,10 +45,17 @@ class Shop {
       'ConjuredItem': -1,
       'NormalItem': -1
     }
-    
-    this.assignSellInChange();
+    this.qualityChangeMap = {
+      'LegendaryItem': 0,
+      'EpicItem': 1,
+      'BackstagePassItem': 1,
+      'ConjuredItem': -2,
+      'NormalItem': -1
+    }
 
-    console.log('newItemList: ', this.items);
+    this.assignItemProperties()
+
+    // console.log('newItemList: ', this.items);
   }
 
   assignItemType() {
@@ -75,26 +79,19 @@ class Shop {
     //    getTypeByItemName(){} - function
   }
 
-  assignItemHandler() {
+  assignItemProperties() {
     // Assume all category keys can be found in handlerMap.
     for (const [key, value] of Object.entries(this.categorizedItems)) {
-      value.map((item => Object.assign(item, { itemHandler: this.handlerMap[key] })))
-    }
-  }
-
-  assignSellInChange() {
-    for (const [key, value] of Object.entries(this.categorizedItems)) {
-      value.map((item) => Object.assign(item, { sellInChange: this.sellInChangeMap[key] }))
+      value.map((item => Object.assign(item, { 
+        itemHandler: this.handlerMap[key], 
+        sellInChange: this.sellInChangeMap[key], 
+        qualityChange: this.qualityChangeMap[key], 
+      })))
     }
   }
 
   updateSellIn(conditions) {
     for (let item of this.items) {
-      // what if conjuredItem sellIn remained unchanged
-      // 10 items - how many handler instance will have?
-      // a. 10 legendary items
-      // b. 5 legendary items, 5 conjured items
-      // min handler will be enough?
       new item.itemHandler(conditions).updateSellIn(item, item.sellInChange);
     }
   }
@@ -103,7 +100,7 @@ class Shop {
   updateQuality(conditions) {
     new Validator().validateDuplicates(this.items, (item => item.name));
     for (let item of this.items) {
-      new item.itemHandler(conditions).updateQuality(item);
+      new item.itemHandler(conditions).updateQuality(item, item.qualityChange);
     }
   }
 
@@ -159,14 +156,12 @@ class ItemHandler {
 class LegendaryItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = 0;
     this.maxQuality = 80;
     this.minQuality = 80;
     this.conditions = conditions;
-    this.sellInChange = 0;
   }
-  updateQuality(item) {
-    this.changeQuality(item, this.qualityChange);
+  updateQuality(item, qualityChange) {
+    this.changeQuality(item, qualityChange);
     this.adjustQuality(item);
   }
   adjustQuality(item) {
@@ -177,13 +172,12 @@ class LegendaryItemHandler extends ItemHandler {
 class EpicItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = 1;
     this.conditions = conditions;
   }
-  updateQuality(item) {
-    this.changeQuality(item, this.qualityChange);
+  updateQuality(item, qualityChange) {
+    this.changeQuality(item,qualityChange);
     if (item.sellIn < this.minSellInDay) {
-      this.changeQuality(item, this.qualityChange);
+      this.changeQuality(item, qualityChange);
     }
     this.adjustQuality(item);
   }
@@ -194,7 +188,7 @@ class BackstagePassItemHandler extends ItemHandler {
     super();
     this.conditions = conditions;
   }
-  updateQuality(item) {
+  updateQuality(item, qualityChange) {
     new Validator().validateDuplicates(this.conditions, (item => item.day));
 
     for (let condition of this.conditions) {
@@ -214,14 +208,13 @@ class BackstagePassItemHandler extends ItemHandler {
 class NormalItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = -1;
     this.conditions = conditions;
   }
     // changeQuality
-  updateQuality(item) {
-    this.changeQuality(item, this.qualityChange);
+  updateQuality(item, qualityChange) {
+    this.changeQuality(item, qualityChange);
     if (item.sellIn < this.minSellInDay) {
-      this.changeQuality(item, this.qualityChange);
+      this.changeQuality(item, qualityChange);
     }
     this.adjustQuality(item);
   }
@@ -230,7 +223,6 @@ class NormalItemHandler extends ItemHandler {
 class ConjuredItemHandler extends NormalItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = -2;
     this.conditions = conditions;
   }
 
