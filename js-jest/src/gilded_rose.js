@@ -6,7 +6,6 @@ class Item {
   }
 }
 
-
 class Shop {
   // Assume Items are all instances of Item
   constructor(items = []) {
@@ -27,7 +26,7 @@ class Shop {
 
     this.assignItemType();
 
-    this.categories = this.items.reduce((categories, item) => {
+    this.categorizedItems = this.items.reduce((categories, item) => {
       (categories[item.type] = categories[item.type] || []).push(item);
       return categories;
     }, {})
@@ -40,8 +39,8 @@ class Shop {
       'NormalItem': NormalItemHandler
     }
 
-
     this.assignItemHandler();
+
     this.sellInChangeMap = {
       'LegendaryItem': 0,
       'EpicItem': -1,
@@ -49,9 +48,10 @@ class Shop {
       'ConjuredItem': -1,
       'NormalItem': -1
     }
+    
     this.assignSellInChange();
 
-    console.log('newItemList: ', this.categories);
+    console.log('newItemList: ', this.items);
   }
 
   assignItemType() {
@@ -77,13 +77,13 @@ class Shop {
 
   assignItemHandler() {
     // Assume all category keys can be found in handlerMap.
-    for (const [key, value] of Object.entries(this.categories)) {
+    for (const [key, value] of Object.entries(this.categorizedItems)) {
       value.map((item => Object.assign(item, { itemHandler: this.handlerMap[key] })))
     }
   }
 
   assignSellInChange() {
-    for (const [key, value] of Object.entries(this.categories)) {
+    for (const [key, value] of Object.entries(this.categorizedItems)) {
       value.map((item) => Object.assign(item, { sellInChange: this.sellInChangeMap[key] }))
     }
   }
@@ -209,14 +209,15 @@ class BackstagePassItemHandler extends ItemHandler {
 }
 
 // what if normalItemHandler to replace conjuredItemHandler?
-class ConjuredItemHandler extends ItemHandler {
+
+
+class NormalItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = -2;
+    this.qualityChange = -1;
     this.conditions = conditions;
   }
-
-  // changeQuality
+    // changeQuality
   updateQuality(item) {
     this.changeQuality(item, this.qualityChange);
     if (item.sellIn < this.minSellInDay) {
@@ -226,21 +227,14 @@ class ConjuredItemHandler extends ItemHandler {
   }
 }
 
-class NormalItemHandler extends ItemHandler {
+class ConjuredItemHandler extends NormalItemHandler {
   constructor(conditions) {
     super();
-    this.qualityChange = -1;
+    this.qualityChange = -2;
     this.conditions = conditions;
   }
-  updateQuality(item,) {
-    this.changeQuality(item, this.qualityChange);
-    if (item.sellIn < this.minSellInDay) {
-      this.changeQuality(item, this.qualityChange);
-    }
-    this.adjustQuality(item);
-  }
-}
 
+}
 class Validator {
   constructor() {
 
