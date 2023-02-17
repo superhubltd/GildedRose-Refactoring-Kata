@@ -857,7 +857,7 @@ describe("[Gilded Rose] 12.iv Condition: a. validator b. items list - duplicate 
   })
 });
 
-describe("[Gilded Rose] 13.i Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
+describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
   it.each([
     [
       []
@@ -871,6 +871,29 @@ describe("[Gilded Rose] 13.i Condition: a. validator b. items list - empty list;
         expect(gildedRose).toBe(null);
       }catch(err){
         expect(err.message).toBe('The itemList is empty!');
+      }
+  })
+});
+
+describe("[Gilded Rose] 14. Condition: a. validator b. items list - has non-item object; Output: throw error", ()=>{
+  it.each([
+    [
+      [
+        new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
+        {x:1,y:2,z:3},
+        new Item("Conjured", 1, 50),
+      ]
+    ], 
+
+  ])('Original item: %p expecting throw error',(samples)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toBe('The itemList has non-Item object!');
       }
   })
 });

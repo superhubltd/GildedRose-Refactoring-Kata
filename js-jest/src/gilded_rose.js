@@ -6,9 +6,11 @@ class Item {
   }
 }
 
+
 class Shop {
+  // Assume Items are all instances of Item
   constructor(items = []) {
-    
+
     this.items = items;
     this.legendaryItem = 'LegendaryItem';
     this.epicItem = 'EpicItem';
@@ -37,25 +39,40 @@ class Shop {
       'ConjuredItem': ConjuredItemHandler,
       'NormalItem': NormalItemHandler
     }
+
+
     this.assignItemHandler();
+    this.sellInChangeMap = {
+      'LegendaryItem': 0,
+      'EpicItem': -1,
+      'BackstagePassItem': -1,
+      'ConjuredItem': -1,
+      'NormalItem': -1
+    }
+    this.assignSellInChange();
+
+    console.log('newItemList: ', this.categories);
   }
 
   assignItemType() {
     new Validator().validateEmptyItems(this.items);
+
     for (let item of this.items) {
+      new Validator().validateNonItemObjects(item);
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
         if (item.name.includes(value)) {
-          type = key; // need to check if it belongs to specific type // Y/N that type
+          type = key;
+          // need to check if it belongs to specific type // Y/N that type
         }
       }
       if (type == null) {
         type = this.normalItem;
       }
 
-      Object.assign(item, {type:type});
+      Object.assign(item, { type: type });
     }
-    //    getTypeByItemName(){}- function
+    //    getTypeByItemName(){} - function
   }
 
   assignItemHandler() {
@@ -65,30 +82,28 @@ class Shop {
     }
   }
 
+  assignSellInChange() {
+    for (const [key, value] of Object.entries(this.categories)) {
+      value.map((item) => Object.assign(item, { sellInChange: this.sellInChangeMap[key] }))
+    }
+  }
+
   updateSellIn(conditions) {
     for (let item of this.items) {
       // what if conjuredItem sellIn remained unchanged
       // 10 items - how many handler instance will have?
       // a. 10 legendary items
-      // b. 5 legendary items  , 5 conjured items
+      // b. 5 legendary items, 5 conjured items
       // min handler will be enough?
-
-      // do not use if-else , what are the alternative?
-      if (this.items.find((i)=>i.type == this.legendaryItem)){
-        new LegendaryItemHandler(conditions).updateSellIn(item);
-      }else {
-        new ItemHandler(conditions).updateSellIn(item);
-      }
+      new item.itemHandler(conditions).updateSellIn(item, item.sellInChange);
     }
   }
 
-  // validate this.settings - what is it then?
-  updateQuality(conditions) {
 
-    // function name (.validate) - ensure what?
+  updateQuality(conditions) {
     new Validator().validateDuplicates(this.items, (item => item.name));
     for (let item of this.items) {
-      new item.itemHandler(conditions).updateQuality(item);   
+      new item.itemHandler(conditions).updateQuality(item);
     }
   }
 
@@ -100,43 +115,21 @@ class Shop {
   }
 }
 
-
-class Validator {
-  constructor(){
-
-  }
-  validateDuplicates(list, validateItem) {
-    let validatedArr = (list).map(validateItem);
-    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
-    if (isDuplicate == true) {
-      throw new Error(`${validateItem} has duplicate items, please check again!`);
-    } 
-  }
-
-  validateEmptyItems(items){
-    if(items.length <=0){
-      throw new Error('The itemList is empty!');
-    }
-  }
-}
-
-
 class ItemHandler {
   constructor(conditions) {
     this.minQuality = 0;
     this.maxQuality = 50;
-    this.SellInChange = -1;
     this.minSellInDay = 0;
-    this.conditions==[]?[]: conditions;
+    this.conditions == [] ? [] : conditions;
   }
 
-  updateSellIn(item) {
-    item.sellIn += this.SellInChange;
+  updateSellIn(item, sellInChange) {
+    item.sellIn += sellInChange;
   }
 
   // updateQuality may be overwritten by different combination of changeQuality method. 
   updateQuality(item, qualityChange) {
-    this.changeQuality(item,qualityChange);
+    this.changeQuality(item, qualityChange);
   }
 
   // changeQuality method acts like a building unit of updateQuality method.
@@ -154,11 +147,11 @@ class ItemHandler {
     }
   }
 
-  maximizeQuality(item){
+  maximizeQuality(item) {
     item.quality = this.maxQuality;
   }
 
-  minimizeQuality(item){
+  minimizeQuality(item) {
     item.quality = this.minQuality;
   }
 }
@@ -170,7 +163,7 @@ class LegendaryItemHandler extends ItemHandler {
     this.maxQuality = 80;
     this.minQuality = 80;
     this.conditions = conditions;
-    this.SellInChange = 0;
+    this.sellInChange = 0;
   }
   updateQuality(item) {
     this.changeQuality(item, this.qualityChange);
@@ -209,8 +202,8 @@ class BackstagePassItemHandler extends ItemHandler {
         this.changeQuality(item, condition.qualityChange);
     }
 
-    if (item.sellIn < this.minSellInDay) 
-    this.minimizeQuality(item);
+    if (item.sellIn < this.minSellInDay)
+      this.minimizeQuality(item);
     this.adjustQuality(item);
   }
 }
@@ -239,12 +232,38 @@ class NormalItemHandler extends ItemHandler {
     this.qualityChange = -1;
     this.conditions = conditions;
   }
-  updateQuality(item) {
+  updateQuality(item,) {
     this.changeQuality(item, this.qualityChange);
     if (item.sellIn < this.minSellInDay) {
       this.changeQuality(item, this.qualityChange);
     }
     this.adjustQuality(item);
+  }
+}
+
+class Validator {
+  constructor() {
+
+  }
+  validateDuplicates(list, validateItem) {
+    let validatedArr = (list).map(validateItem);
+    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
+    if (isDuplicate == true) {
+      throw new Error(`${validateItem} has duplicate items, please check again!`);
+    }
+  }
+
+  validateEmptyItems(items) {
+    if (items.length <= 0) {
+      throw new Error('The itemList is empty!');
+    }
+  }
+
+  validateNonItemObjects(item) {
+    if (!(item instanceof Item) == true) {
+      throw new Error('The itemList has non-Item object!')
+    }
+
   }
 }
 
