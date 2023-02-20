@@ -1051,7 +1051,7 @@ describe("[Gilded Rose] 14.iii. Condition: a. validator b. items list - Quality 
   })
 });
 
-describe("[Gilded Rose] 15.i. Condition: a. validator b. name, sellIn, quality are invalid ; Output: throw error (two error messages)", ()=>{
+describe("[Gilded Rose] 15. Condition: a. validator b. name, sellIn, quality in the same item are invalid ; Output: throw error (two error messages)", ()=>{
   it.each([
     [
       [
@@ -1059,7 +1059,7 @@ describe("[Gilded Rose] 15.i. Condition: a. validator b. name, sellIn, quality a
       ], 
     ], 
 
-  ])('Original item: %p expecting throw error: %p',(samples)=>{
+  ])('Original item: %p expecting throw name, sellIn and quality error',(samples)=>{
 
     try{
         const gildedRose = new Shop(
@@ -1076,3 +1076,29 @@ describe("[Gilded Rose] 15.i. Condition: a. validator b. name, sellIn, quality a
   })
 });
 
+describe("[Gilded Rose] 16. Condition: a. validator b. name, sellIn, quality in different items are invalid ; Output: throw error (two error messages)", ()=>{
+  it.each([
+    [
+      [
+        new Item("", 50, 50),
+        new Item("abc", null, 50),
+        new Item("abc", 50, null),
+      ], 
+    ], 
+
+  ])('Original item: %p expecting throw name, sellIn and quality error',(samples)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        const items = gildedRose.updateAll(conditions);
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain('Name is required');
+        expect(err.message).toContain('SellIn is required');
+        expect(err.message).toContain('Quality is required');
+      }
+  })
+});

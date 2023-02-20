@@ -80,10 +80,13 @@ class Shop {
 
 
   assignItemType() {
+    let error = this.items.filter(item => !this.itemHelper.validateItem(item))
+                          .map(item=> `${JSON.stringify(item)} + ${this.itemHelper.errors}`)
+    if(error.length !== 0){
+      console.log('error',error)
+      throw new Error(`Validation of item type failed: ${error}`)
+    }
     this.items.map(item => {
-      if (this.itemHelper.validateItem(item) == false) {
-        throw new Error(`Validation of item type failed: ${this.itemHelper.errors}`);
-      }
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
         if (item.name.includes(value)) {
@@ -94,8 +97,7 @@ class Shop {
         type = this.normalItem;
       }
       Object.assign(item, { type: type });
-    }
-    )
+    })
   }
 
   assignItemProperties() {
