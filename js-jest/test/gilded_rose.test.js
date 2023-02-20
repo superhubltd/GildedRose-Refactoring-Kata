@@ -806,7 +806,7 @@ describe("[Gilded Rose] 12.ii Condition: a. validator b. conditions list - dupli
         const err = gildedRose.updateAll(duplicateconditions);
         expect(items[0].quality).toBe(null);
       }catch(err){
-        expect(err.message).toBe('item => item.day has duplicate items, please check again!');
+        expect(err.message).toBe('validation of backstagePassItemHandler failed');
       } 
   })
 });
@@ -850,7 +850,7 @@ describe("[Gilded Rose] 12.iv Condition: a. validator b. items list - duplicate 
         const items = gildedRose.updateAll(conditions);
         expect(items[0].quality).toBe(null);
       }catch(err){
-        expect(err.message).toBe('item => item.name has duplicate items, please check again!');
+        expect(err.message).toBe('Validation of list failed');
       }
       
       
@@ -860,7 +860,7 @@ describe("[Gilded Rose] 12.iv Condition: a. validator b. items list - duplicate 
 describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
   it.each([
     [
-      []
+      
     ], 
 
   ])('Original item: %p expecting throw error',(samples)=>{
@@ -870,7 +870,7 @@ describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; O
         )
         expect(gildedRose).toBe(null);
       }catch(err){
-        expect(err.message).toBe('The itemList is empty!');
+        expect(err.message).toBe('Validation of list failed');
       }
   })
 });

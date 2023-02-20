@@ -11,8 +11,7 @@ class Shop {
   constructor(items = []) {
     this.items = items;
     this.normalItem = 'NormalItem';
-    this.helper = new Validator();
-    this.dynamicHelper = new DynamicValidator({
+    this.dynamicItemHelper = new DynamicValidator({
       name: [
         new RequiredRule('Name is required'),
         new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number`),
@@ -20,13 +19,22 @@ class Shop {
       ],
       sellIn: [
         new RequiredRule('SellIn is required'),
-        new minValueRule(5, `Item's sellIn must be more than or equal to 0`)
+        new maxValueRule(50, `Item's quality must be less than or equal to 50`),
+        new minValueRule(5, `Item's sellIn must be more than or equal to 0`),
       ],
       quality: [
         new RequiredRule('Quality is required'),
-        new minValueRule(0, `Item's quality must be more than or equal to 0`)
+        new maxValueRule(80, `Item's quality must be less than or equal to 80`),
+        new minValueRule(0, `Item's quality must be more than or equal to 0`),
       ]
     })
+
+    this.dynamicListHelper = new DynamicValidator([
+      new NotEmptyRule(0, 'The itemList cannot be empty'),
+      new NotDuplicatesRule('There are item duplicates in the list'),
+
+    ]
+    )
 
     // rename itemsMap - ask Poe (need to be more self-descriptive)
     this.itemsMap = {
@@ -73,11 +81,9 @@ class Shop {
 
   assignItemType() {
     this.items.map(item => {
-      if (this.dynamicHelper.validate(item) == false) {
+      if (this.dynamicItemHelper.validateItem(item) == false) {
         throw new Error('Validation of item type failed');
       }
-      console.log('dynamicHelper:', this.dynamicHelper.validate(item))
-
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
         if (item.name.includes(value)) {
@@ -113,7 +119,11 @@ class Shop {
     }
   }
   updateQuality(conditions) {
-    this.helper.validateDuplicates(this.items, (item => item.name));
+    console.log('dynamicHelper:', this.dynamicListHelper.validateItemList(this.items, (item => item.name)))
+    if (this.dynamicListHelper.validateItemList(this.items, (item => item.name)) == false) {
+      
+      throw new Error('Validation of list failed');
+    }
     for (let item of this.items) {
       new item.itemHandler(conditions).updateQuality(item, item.qualityChange);
     }
@@ -151,10 +161,10 @@ class ItemHandler {
   // adjustQuality method adjust quality when quality goes beyond minQuality and maxQuality.
   adjustQuality(item) {
     if (item.quality <= this.minQuality) {
-      // Maths related function - ask Poe (if eliminate if what can be done?)
+      // Maths related function - ask Poe (if eliminate what can be done?)
       this.minimizeQuality(item);
     }
-    // Maths related function - ask Poe (if eliminate if what can be done?)
+    // Maths related function - ask Poe (if eliminate what can be done?)
     else if (item.quality >= this.maxQuality) {
       this.maximizeQuality(item);
     }
@@ -196,9 +206,18 @@ class BackstagePassItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
     this.conditions = conditions;
+    this.dynamicListHelper = new DynamicValidator([
+      new NotDuplicatesRule('There are item duplicates in the list'),
+    ]
+    )
+    
   }
+
+
   updateQuality(item, qualityChange) {
-    new Validator().validateDuplicates(this.conditions, (item => item.day));
+    if(this.dynamicListHelper.validateItemList(this.conditions, (item => item.day))==false){
+      throw new Error('validation of backstagePassItemHandler failed');
+    }
 
     for (let condition of this.conditions) {
       if (item.sellIn >= this.minSellInDay && item.sellIn <= condition.day)
@@ -233,35 +252,40 @@ class ConjuredItemHandler extends NormalItemHandler {
 }
 
 
-class Validator {
-  constructor() {
-
+class DynamicValidator {
+  constructor(rules) {
+    this.rules = rules;
   }
-  validateDuplicates(list, validateItem) {
-    let validatedArr = (list).map(validateItem);
-    var isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
-    if (isDuplicate == true) {
-      throw new Error(`${validateItem} has duplicate items, please check again!`);
+  validateItem(data) {
+    let errors = {};
+    for (let field in this.rules) {
+      let fieldRules = this.rules[field];
+      for (let rule of fieldRules) {
+        let errorMessage = rule.validate(data[field]);
+        if (errorMessage) {
+          errors[field] = errorMessage;
+          break;
+        }
+      }
     }
+    this.errors = errors;
+    return Object.keys(errors).length === 0;
   }
 
-  validateEmptyItems(items) {
-    if (items.length <= 0) {
-      throw new Error('The itemList is empty!');
+  validateItemList(data, checkFunction){
+    let errors = {};
+      for (let rule of this.rules) {
+        let errorMessage = rule.validate(data, checkFunction);
+        if (errorMessage) {
+          errors = errorMessage;
+          break;
+        }      
     }
-  }
-
-  validateNonItemObjects(item) {
-    if (!(item instanceof Item) == true) {
-      throw new Error('The itemList has non-Item object!')
-    }
-
+    this.errors = errors;
+    return Object.keys(errors).length === 0;
   }
 }
 
-// change to dynamic validator
-
-// helper class
 // must be 2 types of items
 
 
@@ -294,7 +318,7 @@ class MinLengthRule extends EqualLengthRule {
   }
 }
 
-// item
+// Item Rules
 class EqualValueRule {
   constructor(requiredValue, errorMessage) {
     this.requiredValue = requiredValue;
@@ -323,19 +347,6 @@ class minValueRule extends EqualValueRule {
   }
 }
 
-// itemList
-class NotDuplicatesRule {
-  constructor() {
-    this.errorMessage = errorMessage;
-  }
-  validate(items, checkFunction) {
-    let validatedArr = (items).map(checkFunction);
-    let isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
-    return isDuplicate == true ? this.errorMessage : null;
-  }
-}
-
-// item
 class RequiredRule {
   constructor(errorMessage) {
     this.errorMessage = errorMessage;
@@ -348,34 +359,25 @@ class RequiredRule {
   }
 }
 
-// item
-class NotNonItemRule {
-  constructor() {
+// ItemList Rules
+class NotEmptyRule {
+  constructor(requiredLength, errorMessage) {
+    this.requiredLength = requiredLength;
     this.errorMessage = errorMessage;
   }
-  validate(item) {
-    !(item instanceof Item) == true ? this.errorMessage : null;
+  validate(items, checkFunction) {
+    return items.length === false? this.errorMessage : null;
   }
 }
 
-class DynamicValidator {
-  constructor(rules) {
-    this.rules = rules;
+class NotDuplicatesRule {
+  constructor(errorMessage) {
+    this.errorMessage = errorMessage;
   }
-  validate(data) {
-    let errors = {};
-    for (let field in this.rules) {
-      let fieldRules = this.rules[field];
-      for (let rule of fieldRules) {
-        let errorMessage = rule.validate(data[field]);
-        if (errorMessage) {
-          errors[field] = errorMessage;
-          break;
-        }
-      }
-    }
-    this.errors = errors;
-    return Object.keys(errors).length === 0;
+  validate(items, checkFunction) {
+    let validatedArr = (items).map(checkFunction);
+    let isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
+    return isDuplicate == true ? this.errorMessage : null;
   }
 }
 
@@ -383,6 +385,6 @@ class DynamicValidator {
 module.exports = {
   Item,
   Shop,
-  Validator
+  DynamicValidator,
 }
 
