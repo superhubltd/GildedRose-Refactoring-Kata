@@ -1076,7 +1076,33 @@ describe("[Gilded Rose] 15. Condition: a. validator b. name, sellIn, quality in 
   })
 });
 
-describe("[Gilded Rose] 16. Condition: a. validator b. name, sellIn, quality in different items are invalid ; Output: throw error (two error messages)", ()=>{
+describe("[Gilded Rose] 16. Condition: a. validator b. two fields in different items are invalid ; Output: throw error (two error messages)", ()=>{
+  it.each([
+    [
+      [
+        new Item("", 50, 50),
+        new Item("", null, 50),
+        new Item("abc", 50, 50),
+      ], 
+    ], 
+
+  ])('Original item: %p expecting throw name, sellIn and quality error',(samples)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        const items = gildedRose.updateAll(conditions);
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain('Name is required');
+        expect(err.message).toContain('SellIn is required');
+      }
+  })
+});
+
+describe("[Gilded Rose] 17. Condition: a. validator b. name, sellIn, quality in different items are invalid ; Output: throw error (two error messages)", ()=>{
   it.each([
     [
       [
@@ -1085,6 +1111,14 @@ describe("[Gilded Rose] 16. Condition: a. validator b. name, sellIn, quality in 
         new Item("abc", 50, null),
       ], 
     ], 
+    [
+      [
+        new Item("", 50, 50),
+        new Item("", null, 50),
+        new Item("abc", null, null),
+      ], 
+    ], 
+    
 
   ])('Original item: %p expecting throw name, sellIn and quality error',(samples)=>{
 

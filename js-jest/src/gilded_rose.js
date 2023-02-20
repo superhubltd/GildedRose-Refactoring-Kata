@@ -253,7 +253,6 @@ class DynamicValidator {
     this.errors = [];
   }
   validateItem(data) {
-    let errors = [];
     for (let field in this.rules) {
       let fieldRules = this.rules[field];
       fieldRules.map(rule => {
@@ -267,18 +266,15 @@ class DynamicValidator {
   }
 
   validateItemList(data, checkFunction) {
-    let errors = [];
     this.rules.map(rule => {
       let errorMessage = rule.validate(data, checkFunction);
       if (errorMessage) {
-        errors.push(errorMessage);
+        this.errors.push(errorMessage);
       }
-      this.errors = errors;
     })
     return this.errors.length === 0;
   };
 }
-
 
 // Item Rules
 class MaxLengthRule {
