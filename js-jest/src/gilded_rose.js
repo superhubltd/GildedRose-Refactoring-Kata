@@ -77,7 +77,9 @@ class Shop {
 
 
   assignItemType() {
+    // unit test on the validator or validated item
     let error = this.items.filter(item => !this.itemHelper.validateItem(item))
+    // map  => a method inside the class Validator -> this.helper.function
                           .map(item=> `${JSON.stringify(item)} + ${this.itemHelper.errors}`)
     if(error.length !== 0){
       console.log('error',error)

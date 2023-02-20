@@ -1118,10 +1118,7 @@ describe("[Gilded Rose] 17. Condition: a. validator b. name, sellIn, quality in 
         new Item("abc", null, null),
       ], 
     ], 
-    
-
   ])('Original item: %p expecting throw name, sellIn and quality error',(samples)=>{
-
     try{
         const gildedRose = new Shop(
         samples,
