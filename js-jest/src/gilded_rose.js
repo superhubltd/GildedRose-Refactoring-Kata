@@ -158,21 +158,15 @@ class ItemHandler {
 
   // adjustQuality method adjust quality when quality goes beyond minQuality and maxQuality.
   adjustQuality(item) {
-    if (item.quality <= this.minQuality) {
-      // Maths related function - ask Poe (if eliminate what can be done?)
-      this.minimizeQuality(item);
-    }
-
-    // Maths related function - ask Poe (if eliminate what can be done?)
-    else if (item.quality >= this.maxQuality) {
-      this.maximizeQuality(item);
-    }
+    item.quality <= this.minQuality? this.minimizeQuality(item): 
+    item.quality >= this.maxQuality? this.maximizeQuality(item):
+    item.quality == item.quality;
   }
   maximizeQuality(item) {
-    item.quality = this.maxQuality;
+    item.quality = Math.max(this.maxQuality);
   }
   minimizeQuality(item) {
-    item.quality = this.minQuality;
+    item.quality = Math.min(this.minQuality);
   }
 }
 
