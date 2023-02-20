@@ -875,12 +875,12 @@ describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; O
   })
 });
 
-describe("[Gilded Rose] 14. Condition: a. validator b. items list - has non-item object; Output: throw error", ()=>{
+describe("[Gilded Rose] 14. Condition: a. validator b. items list - has not validated object; Output: throw error", ()=>{
   it.each([
     [
       [
         new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
-        {x:1,y:2,z:3},
+        {x:1,y:2,z:3}, 
         new Item("Conjured", 1, 50),
       ]
     ], 
@@ -893,7 +893,7 @@ describe("[Gilded Rose] 14. Condition: a. validator b. items list - has non-item
         )
         expect(gildedRose).toBe(null);
       }catch(err){
-        expect(err.message).toBe('The itemList has non-Item object!');
+        expect(err.message).toBe('Validation of item type failed');
       }
   })
 });

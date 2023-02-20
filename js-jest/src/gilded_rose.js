@@ -12,18 +12,19 @@ class Shop {
     this.items = items;
     this.normalItem = 'NormalItem';
     this.helper = new Validator();
-    this.enhancedHelper = new DynamicValidator({
+    this.dynamicHelper = new DynamicValidator({
       name: [
         new RequiredRule('Name is required'),
-        new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number.`),
+        new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number`),
+        new MinLengthRule(1, `Please input the item's name`)
       ],
       sellIn: [
         new RequiredRule('SellIn is required'),
-        new minValueRule(5, `Item's sellIn must be more than or equal to 0.`)
+        new minValueRule(5, `Item's sellIn must be more than or equal to 0`)
       ],
       quality: [
         new RequiredRule('Quality is required'),
-        new minValueRule(0, `Item's quality must be more than or equal to 0.`)
+        new minValueRule(0, `Item's quality must be more than or equal to 0`)
       ]
     })
 
@@ -71,9 +72,11 @@ class Shop {
 
 
   assignItemType() {
-    this.helper.validateEmptyItems(this.items);
     this.items.map(item => {
-      this.helper.validateNonItemObjects(item);
+      if (this.dynamicHelper.validate(item) == false) {
+        throw new Error('Validation of item type failed');
+      }
+      console.log('dynamicHelper:', this.dynamicHelper.validate(item))
 
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
@@ -260,41 +263,63 @@ class Validator {
 
 // helper class
 // must be 2 types of items
-// item.name cannot be more than 100 characters
-// sellIn cannot be less than 5;
-// quality cannot be 0?
+
 
 // item
-class MaxLengthRule {
-  constructor(maxLength, errorMessage) {
-    this.maxLength = maxLength;
+class EqualLengthRule {
+  constructor(requiredLength, errorMessage) {
+    this.requiredLength = requiredLength;
     this.errorMessage = errorMessage;
   }
   validate(item) {
-    return item > maxLength ? this.errorMessage : null;
+    return item.length == this.Length ? this.errorMessage : null;
+  }
+}
+
+class MaxLengthRule extends EqualLengthRule {
+  constructor(requiredLength, errorMessage) {
+    super();
+  }
+  validate(item) {
+    return item.length < this.requiredLength ? this.errorMessage : null;
+  }
+}
+
+class MinLengthRule extends EqualLengthRule {
+  constructor(requiredLength, errorMessage) {
+    super();
+  }
+  validate(item) {
+    return item.length > this.requiredLength ? this.errorMessage : null;
   }
 }
 
 // item
-class minValueRule{
-  constructor(minValue, errorMessage) {
-    this.minValue = minValue;
+class EqualValueRule {
+  constructor(requiredValue, errorMessage) {
+    this.requiredValue = requiredValue;
     this.errorMessage = errorMessage;
   }
   validate(item) {
-    return item.length > minValue ? this.errorMessage : null;
+    return item.length == this.requiredValue ? this.errorMessage : null;
   }
 }
 
-
-// itemList
-class NotEmptyRule {
-  constructor(minLength, errorMessage) {
-    this.minLength = minLength;
-    this.errorMessage = errorMessage;
+class maxValueRule extends EqualValueRule {
+  constructor(requiredValue, errorMessage) {
+    super();
   }
-  validate(items) {
-    return items.length <= minLength ? this.errorMessage : null;
+  validate(item) {
+    return item.length < this.requiredValue ? this.errorMessage : null;
+  }
+}
+
+class minValueRule extends EqualValueRule {
+  constructor(requiredValue, errorMessage) {
+    super();
+  }
+  validate(item) {
+    return item.length > this.requiredValue ? this.errorMessage : null;
   }
 }
 
@@ -328,13 +353,13 @@ class NotNonItemRule {
   constructor() {
     this.errorMessage = errorMessage;
   }
-  validate(item){
-    !(item instanceof Item) == true? this.errorMessage: null;
+  validate(item) {
+    !(item instanceof Item) == true ? this.errorMessage : null;
   }
 }
 
-class DynamicValidator{
-  constructor(rules){
+class DynamicValidator {
+  constructor(rules) {
     this.rules = rules;
   }
   validate(data) {
