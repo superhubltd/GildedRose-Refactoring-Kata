@@ -860,7 +860,7 @@ describe("[Gilded Rose] 12.iv Condition: a. validator b. items list - duplicate 
 describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
   it.each([
     [
-      
+      []
     ], 
 
   ])('Original item: %p expecting throw error',(samples)=>{
@@ -868,7 +868,8 @@ describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; O
         const gildedRose = new Shop(
           samples,
         )
-        expect(gildedRose).toBe(null);
+        const items = gildedRose.updateAll(conditions);
+        expect(items).toBe(null);
       }catch(err){
         expect(err.message).toBe('Validation of list failed');
       }
@@ -891,6 +892,7 @@ describe("[Gilded Rose] 14. Condition: a. validator b. items list - has not vali
         const gildedRose = new Shop(
         samples,
         )
+        const items = gildedRose.updateAll(conditions);
         expect(gildedRose).toBe(null);
       }catch(err){
         expect(err.message).toBe('Validation of item type failed');

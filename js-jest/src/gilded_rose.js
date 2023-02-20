@@ -119,9 +119,7 @@ class Shop {
     }
   }
   updateQuality(conditions) {
-    console.log('dynamicHelper:', this.dynamicListHelper.validateItemList(this.items, (item => item.name)))
     if (this.dynamicListHelper.validateItemList(this.items, (item => item.name)) == false) {
-      
       throw new Error('Validation of list failed');
     }
     for (let item of this.items) {
@@ -164,6 +162,7 @@ class ItemHandler {
       // Maths related function - ask Poe (if eliminate what can be done?)
       this.minimizeQuality(item);
     }
+
     // Maths related function - ask Poe (if eliminate what can be done?)
     else if (item.quality >= this.maxQuality) {
       this.maximizeQuality(item);
@@ -366,7 +365,7 @@ class NotEmptyRule {
     this.errorMessage = errorMessage;
   }
   validate(items, checkFunction) {
-    return items.length === false? this.errorMessage : null;
+    return !items.find(item => item instanceof Item)? this.errorMessage : null;
   }
 }
 
