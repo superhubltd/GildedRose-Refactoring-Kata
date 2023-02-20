@@ -70,7 +70,7 @@ describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality <
         const items = gildedRose.updateAll(conditions);
         expect(items[0].quality).toBe(result);
     }catch(err){
-      expect(err.message).toContain(`Item's quality must be more than or equal to 0`);
+      expect(err.message).toContain(`Item's quality must be between 0 to 80`);
     }
     
   });
@@ -280,8 +280,8 @@ describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-5
 
 describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-50; Output: sellIn unchanged (AFTER AMENDMENT: MinValueRule(quality))",()=>{
   it.each([
-    [new Item("Sulfuras, Hand of Ragnaros", 10, -1), `Item's quality must be more than or equal to 0`],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, -2), `Item's quality must be more than or equal to 0`],
+    [new Item("Sulfuras, Hand of Ragnaros", 10, -1), `Item's quality must be between 0 to 80`],
+    [new Item("Sulfuras, Hand of Ragnaros", 10, -2), `Item's quality must be between 0 to 80`],
   ])('Original item: %p expecting %p',(samples, result)=>{
     try{
       const gildedRose = new Shop(
@@ -428,7 +428,7 @@ describe("[Gilded Rose] 6.vi Condition: a. name not AgedBrie, backStage, sulfura
         const items = gildedRose.updateAll(conditions);
         expect(items[0].quality).toBe(result);
     }catch(err){
-        expect(err.message).toContain(`Item's quality must be more than or equal to 0`)
+        expect(err.message).toContain(`Item's quality must be between 0 to 80`)
     }
     
   })
@@ -481,7 +481,7 @@ describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backSta
         const items = gildedRose.updateAll(conditions);
         expect(items[0].quality).toBe(result);
     }catch(err){
-      expect(err.message).toContain(`Item's quality must be more than or equal to 0`);
+      expect(err.message).toContain(`Item's quality must be between 0 to 80`);
     }
     
   })
@@ -939,7 +939,7 @@ describe("[Gilded Rose] 14.i. Condition: a. validator b. items list - empty stri
         new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
         new Item("111111111100000000001111111111000000000011111111110000000000111111111100000000001111111111000000000011111111110000000000", 0, 49),
         new Item("Conjured", 1, 50),
-      ], `Item's name must be less than 100 alphanumeric number`
+      ], `Item's name must be between 1 and 100 alphanumeric number`
     ], 
 
   ])('Original item: %p expecting throw error: %p',(samples, result)=>{
@@ -978,14 +978,14 @@ describe("[Gilded Rose] 14.ii. Condition: a. validator b. items list - sellIn is
         new Item('aged Brie', 0, 49),
         new Item("Curious", 51 , 49),
         new Item("xyz", 0, 10),
-      ], `Item's quality must be less than or equal to 50`
+      ], `Item's sellIn must be between -5 and 50`
     ], 
     [
       [
         new Item('aged Brie', -6, 49),
         new Item("Curious", 30 , 49),
         new Item("xyz", 0, 10),
-      ], `Item's sellIn must be more than or equal to -5`
+      ], `Item's sellIn must be between -5 and 50`
     ], 
   ])('Original item: %p expecting throw error: %p',(samples, result)=>{
 
@@ -1026,14 +1026,14 @@ describe("[Gilded Rose] 14.iii. Condition: a. validator b. items list - Quality 
         new Item('aged Brie', 0, 49),
         new Item("Curious", 0 , 100),
         new Item("xyz", 0, 49),
-      ], `Item's quality must be less than or equal to 80`
+      ], `Item's quality must be between 0 to 80`
     ], 
     [
       [
         new Item('aged Brie', 0, 49),
         new Item("Curious", 0 , -1),
         new Item("xyz", 0, 49),
-      ],  `Item's quality must be more than or equal to 0`
+      ],  `Item's quality must be between 0 to 80`
     ], 
 
   ])('Original item: %p expecting throw error: %p',(samples, result)=>{

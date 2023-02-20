@@ -14,18 +14,15 @@ class Shop {
     this.itemHelper = new DynamicValidator({
       name: [
         new RequiredRule('Name is required'),
-        new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number`),
-        new MinLengthRule(1, `Please input the item's name`),
+        new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
       ],
       sellIn: [
         new RequiredRule('SellIn is required'),
-        new MaxValueRule(50, `Item's quality must be less than or equal to 50`),
-        new MinValueRule(-5, `Item's sellIn must be more than or equal to -5`),
+        new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
       ],
       quality: [
         new RequiredRule('Quality is required'),
-        new MaxValueRule(80, `Item's quality must be less than or equal to 80`),
-        new MinValueRule(0, `Item's quality must be more than or equal to 0`),
+        new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
       ]
     })
 
@@ -277,44 +274,30 @@ class DynamicValidator {
 }
 
 // Item Rules
-class MaxLengthRule {
-  constructor(requiredLength, errorMessage) {
-    this.requiredLength = requiredLength;
+class LengthRule {
+  constructor(maxLength, minLength, errorMessage) {
+    this.maxLength = maxLength;
+    this.minLength = minLength;
     this.errorMessage = errorMessage;
   }
   validate(item) {
-    return item.length > this.requiredLength ? this.errorMessage : null;
+    return item.length > this.maxLength ? this.errorMessage : 
+           item.length < this.minLength ? this.errorMessage :
+           null;
   }
 }
 
-class MinLengthRule {
-  constructor(requiredLength, errorMessage) {
-    this.requiredLength = requiredLength;
-    this.errorMessage = errorMessage;
-  }
-  validate(item) {
-    return item.length < this.requiredLength ? this.errorMessage : null;
-  }
-}
-
-class MaxValueRule {
-  constructor(requiredValue, errorMessage) {
-    this.requiredValue = requiredValue;
+class ValueRule {
+  constructor(maxValue, minValue, errorMessage) {
+    this.maxValue = maxValue;
+    this.minValue = minValue;
     this.errorMessage = errorMessage;
 
   }
   validate(item) {
-    return item > this.requiredValue ? this.errorMessage : null;
-  }
-}
-
-class MinValueRule {
-  constructor(requiredValue, errorMessage) {
-    this.requiredValue = requiredValue;
-    this.errorMessage = errorMessage;
-  }
-  validate(item) {
-    return item < this.requiredValue ? this.errorMessage : null;
+    return item > this.maxValue ? this.errorMessage : 
+           item < this.minValue ? this.errorMessage :
+           null;
   }
 }
 
