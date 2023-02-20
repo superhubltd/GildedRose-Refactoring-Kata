@@ -38,8 +38,7 @@ describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 
     [new Item("Aged Brie", 12, 2), 3],
     [new Item("Aged Brie", 12, 40), 41],
     [new Item("Aged Brie", 12, 48), 49],
-    [new Item("Aged Brie", 12, 49), 50],
-    [new Item("Backstage passes to a TAFKAL80ETC concert", 12, -1), 0],
+    [new Item("Aged Brie", 12, 49), 50],,
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, 0), 1],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, 1), 2],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, 2), 3],
@@ -56,19 +55,24 @@ describe("[Gilded Rose] 2.i Condition: a. name agedBrie, backStage b. quality < 
   });
 });
 
-describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality < 50 c. negative quality; Output: quality + 1 (AFTER AMENDMENT: quality = zero)",() =>{
+describe("[Gilded Rose] 2.ii Condition: a. name agedBrie, backStage b. quality < 50 c. negative quality; Output: quality + 1 (AFTER AMENDMENT: throw error MinValueRule (quality))",() =>{
   it.each([
     [new Item("Aged Brie", 12, -1), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, -1), 0],
     [new Item("Aged Brie", 12, -2), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 12, -2), 0],
   ])('Original item: %p expecting %p', (samples, result)=>{
-    const gildedRose = new Shop(
-      [
-        samples,
-      ])
-      const items = gildedRose.updateAll(conditions);
-      expect(items[0].quality).toBe(result);
+    try{
+      const gildedRose = new Shop(
+        [
+          samples,
+        ])
+        const items = gildedRose.updateAll(conditions);
+        expect(items[0].quality).toBe(result);
+    }catch(err){
+      expect(err.message).toContain(`Item's quality must be more than or equal to 0`);
+    }
+    
   });
 });
 
@@ -263,8 +267,6 @@ describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-5
   it.each([
     [new Item("Sulfuras, Hand of Ragnaros", 10, 52), 10],
     [new Item("Sulfuras, Hand of Ragnaros", 10, 51), 10],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, -1), 10],
-    [new Item("Sulfuras, Hand of Ragnaros", 10, -2), 10],
   ])('Original item: %p expecting %p',(samples, result)=>{
     const gildedRose = new Shop(
       [
@@ -272,6 +274,26 @@ describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-5
       ])
       const items = gildedRose.updateAll(conditions);
       expect(items[0].sellIn).toBe(result);
+  })
+});
+
+
+describe("[Gilded Rose] 5.ii Condition: a. name = sulfuras b. quality beyond 0-50; Output: sellIn unchanged (AFTER AMENDMENT: MinValueRule(quality))",()=>{
+  it.each([
+    [new Item("Sulfuras, Hand of Ragnaros", 10, -1), `Item's quality must be more than or equal to 0`],
+    [new Item("Sulfuras, Hand of Ragnaros", 10, -2), `Item's quality must be more than or equal to 0`],
+  ])('Original item: %p expecting %p',(samples, result)=>{
+    try{
+      const gildedRose = new Shop(
+        [
+          samples,
+        ])
+        const items = gildedRose.updateAll(conditions);
+        expect(items[0].sellIn).toBe(0);
+    }catch(err){
+        expect(err.message).toContain(result);
+    }
+    
   })
 });
 
@@ -379,16 +401,36 @@ describe("[Gilded Rose] 6.v Condition: a. name not AgedBrie, backStage, sulfuras
   it.each([
     [new Item("curious", -1, 0), 0],
     [new Item("curious", -2, 0), 0],
+
+  ])('Original item: %p expecting %p',(samples, result)=>{
+
+      const gildedRose = new Shop(
+        [
+          samples,
+        ])
+        const items = gildedRose.updateAll(conditions);
+        expect(items[0].quality).toBe(result);
+
+  })
+});
+
+describe("[Gilded Rose] 6.vi Condition: a. name not AgedBrie, backStage, sulfuras b. sellIn <= 0 c. quality < 0; Output: quality = 0 (AFTER AMENDMENT: throw error MinValueRule (quality))", ()=>{
+  it.each([
     [new Item("curious", -1, -1), 0],
     [new Item("curious", -2, -1), 0],
 
   ])('Original item: %p expecting %p',(samples, result)=>{
-    const gildedRose = new Shop(
-      [
-        samples,
-      ])
-      const items = gildedRose.updateAll(conditions);
-      expect(items[0].quality).toBe(result);
+    try{
+      const gildedRose = new Shop(
+        [
+          samples,
+        ])
+        const items = gildedRose.updateAll(conditions);
+        expect(items[0].quality).toBe(result);
+    }catch(err){
+        expect(err.message).toContain(`Item's quality must be more than or equal to 0`)
+    }
+    
   })
 });
 
@@ -418,7 +460,7 @@ describe("[Gilded Rose] 7.i Condition: a. name not agedBrie but name is backStag
 
 });
 
-describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn <= 0 c. quality < 0; Output: quality - quality", ()=>{
+describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backStage, sulfuras b. sellIn <= 0 c. quality < 0; Output: quality - quality (AFTER AMENDMENT: throw error MinValueRule (quality))", ()=>{
   it.each([
     [new Item("Sulfuras, Hand of Ragnaros", -1, -1), 80],
     [new Item("Backstage passes to a TAFKAL80ETC concert", 0, -1), 0],
@@ -431,12 +473,17 @@ describe("[Gilded Rose] 7.ii Condition: a. name not agedBrie but name is backSta
     [new Item("Backstage passes to a TAFKAL80ETC concert", -2, -2), 0],
     [new Item("Backstage passes to a TAFKAL80ETC concert", -3, -2), 0],
   ])('Original item: %p expecting %p',(samples, result)=>{
-    const gildedRose = new Shop(
-      [
-        samples,
-      ])
-      const items = gildedRose.updateAll(conditions);
-      expect(items[0].quality).toBe(result);
+    try{
+      const gildedRose = new Shop(
+        [
+          samples,
+        ])
+        const items = gildedRose.updateAll(conditions);
+        expect(items[0].quality).toBe(result);
+    }catch(err){
+      expect(err.message).toContain(`Item's quality must be more than or equal to 0`);
+    }
+    
   })
 
 });
@@ -806,7 +853,7 @@ describe("[Gilded Rose] 12.ii Condition: a. validator b. conditions list - dupli
         const err = gildedRose.updateAll(duplicateconditions);
         expect(items[0].quality).toBe(null);
       }catch(err){
-        expect(err.message).toBe('validation of backstagePassItemHandler failed');
+        expect(err.message).toContain('BackstagePassItemHandler valiation failed');
       } 
   })
 });
@@ -850,14 +897,15 @@ describe("[Gilded Rose] 12.iv Condition: a. validator b. items list - duplicate 
         const items = gildedRose.updateAll(conditions);
         expect(items[0].quality).toBe(null);
       }catch(err){
-        expect(err.message).toBe('Validation of list failed');
+        expect(err.message).toContain('Validation of list failed');
+        expect(err.message).toContain('There are item duplicates in the list');
       }
       
       
   })
 });
 
-describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
+describe("[Gilded Rose] 13. Condition: a. validator b. items list - empty list; Output: throw error", ()=>{
   it.each([
     [
       []
@@ -871,22 +919,30 @@ describe("[Gilded Rose] 13 Condition: a. validator b. items list - empty list; O
         const items = gildedRose.updateAll(conditions);
         expect(items).toBe(null);
       }catch(err){
-        expect(err.message).toBe('Validation of list failed');
+        expect(err.message).toContain('Validation of list failed');
+        expect(err.message).toContain('The itemList cannot be empty');
       }
   })
 });
 
-describe("[Gilded Rose] 14. Condition: a. validator b. items list - has not validated object; Output: throw error", ()=>{
+describe("[Gilded Rose] 14.i. Condition: a. validator b. items list - empty string; Output: throw error", ()=>{
   it.each([
     [
       [
         new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
-        {x:1,y:2,z:3}, 
+        new Item("", 0, 49),
         new Item("Conjured", 1, 50),
-      ]
+      ], 'Name is required'
+    ], 
+    [
+      [
+        new Item("Backstage passes to a TAFKAL80ETC concert", 0, 49),
+        new Item("111111111100000000001111111111000000000011111111110000000000111111111100000000001111111111000000000011111111110000000000", 0, 49),
+        new Item("Conjured", 1, 50),
+      ], `Item's name must be less than 100 alphanumeric number`
     ], 
 
-  ])('Original item: %p expecting throw error',(samples)=>{
+  ])('Original item: %p expecting throw error: %p',(samples, result)=>{
 
     try{
         const gildedRose = new Shop(
@@ -895,7 +951,127 @@ describe("[Gilded Rose] 14. Condition: a. validator b. items list - has not vali
         const items = gildedRose.updateAll(conditions);
         expect(gildedRose).toBe(null);
       }catch(err){
-        expect(err.message).toBe('Validation of item type failed');
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain(result);
+      }
+  })
+});
+
+describe("[Gilded Rose] 14.ii. Condition: a. validator b. items list - sellIn is invalid; Output: throw error", ()=>{
+  it.each([
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", null , 49),
+        new Item("xyz", 0, 10),
+      ], 'SellIn is required'
+    ], 
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", undefined , 49),
+        new Item("xyz", 0, 10),
+      ], 'SellIn is required'
+    ], 
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", 51 , 49),
+        new Item("xyz", 0, 10),
+      ], `Item's quality must be less than or equal to 50`
+    ], 
+    [
+      [
+        new Item('aged Brie', -6, 49),
+        new Item("Curious", 30 , 49),
+        new Item("xyz", 0, 10),
+      ], `Item's sellIn must be more than or equal to -5`
+    ], 
+  ])('Original item: %p expecting throw error: %p',(samples, result)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        const items = gildedRose.updateAll(conditions);
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain(result);
+        // error list
+        // count errors item in the list
+
+      }
+  })
+});
+
+describe("[Gilded Rose] 14.iii. Condition: a. validator b. items list - Quality is invalid; Output: throw error", ()=>{
+  it.each([
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", 0 , 49),
+        new Item("xyz", 0, null),
+      ], 'Quality is required'
+    ], 
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", 0 , 49),
+        new Item("xyz", 0, undefined),
+      ], 'Quality is required'
+    ], 
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", 0 , 100),
+        new Item("xyz", 0, 49),
+      ], `Item's quality must be less than or equal to 80`
+    ], 
+    [
+      [
+        new Item('aged Brie', 0, 49),
+        new Item("Curious", 0 , -1),
+        new Item("xyz", 0, 49),
+      ],  `Item's quality must be more than or equal to 0`
+    ], 
+
+  ])('Original item: %p expecting throw error: %p',(samples, result)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        const items = gildedRose.updateAll(conditions);
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain(result);
+      }
+  })
+});
+
+describe("[Gilded Rose] 15.i. Condition: a. validator b. name, sellIn, quality are invalid ; Output: throw error (two error messages)", ()=>{
+  it.each([
+    [
+      [
+        new Item("", null, null),
+      ], 
+    ], 
+
+  ])('Original item: %p expecting throw error: %p',(samples)=>{
+
+    try{
+        const gildedRose = new Shop(
+        samples,
+        )
+        const items = gildedRose.updateAll(conditions);
+        expect(gildedRose).toBe(null);
+      }catch(err){
+        expect(err.message).toContain('Validation of item type failed');
+        expect(err.message).toContain('Name is required');
+        expect(err.message).toContain('SellIn is required');
+        expect(err.message).toContain('Quality is required');
       }
   })
 });

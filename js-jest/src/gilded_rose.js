@@ -11,26 +11,26 @@ class Shop {
   constructor(items = []) {
     this.items = items;
     this.normalItem = 'NormalItem';
-    this.dynamicItemHelper = new DynamicValidator({
+    this.itemHelper = new DynamicValidator({
       name: [
         new RequiredRule('Name is required'),
         new MaxLengthRule(100, `Item's name must be less than 100 alphanumeric number`),
-        new MinLengthRule(1, `Please input the item's name`)
+        new MinLengthRule(1, `Please input the item's name`),
       ],
       sellIn: [
         new RequiredRule('SellIn is required'),
-        new maxValueRule(50, `Item's quality must be less than or equal to 50`),
-        new minValueRule(5, `Item's sellIn must be more than or equal to 0`),
+        new MaxValueRule(50, `Item's quality must be less than or equal to 50`),
+        new MinValueRule(-5, `Item's sellIn must be more than or equal to -5`),
       ],
       quality: [
         new RequiredRule('Quality is required'),
-        new maxValueRule(80, `Item's quality must be less than or equal to 80`),
-        new minValueRule(0, `Item's quality must be more than or equal to 0`),
+        new MaxValueRule(80, `Item's quality must be less than or equal to 80`),
+        new MinValueRule(0, `Item's quality must be more than or equal to 0`),
       ]
     })
 
-    this.dynamicListHelper = new DynamicValidator([
-      new NotEmptyRule(0, 'The itemList cannot be empty'),
+    this.listHelper = new DynamicValidator([
+      new NumberOfItemRule(0, 'The itemList cannot be empty'),
       new NotDuplicatesRule('There are item duplicates in the list'),
 
     ]
@@ -81,8 +81,8 @@ class Shop {
 
   assignItemType() {
     this.items.map(item => {
-      if (this.dynamicItemHelper.validateItem(item) == false) {
-        throw new Error('Validation of item type failed');
+      if (this.itemHelper.validateItem(item) == false) {
+        throw new Error(`Validation of item type failed: ${this.itemHelper.errors}`);
       }
       let type = null;
       for (const [key, value] of Object.entries(this.itemsMap)) {
@@ -114,17 +114,19 @@ class Shop {
     }
   }
   updateSellIn(conditions) {
-    for (let item of this.items) {
+    this.items.map(item => {
       new item.itemHandler(conditions).updateSellIn(item, item.sellInChange);
-    }
+    })
   }
+
   updateQuality(conditions) {
-    if (this.dynamicListHelper.validateItemList(this.items, (item => item.name)) == false) {
-      throw new Error('Validation of list failed');
+    if (this.listHelper.validateItemList(this.items, (item => item.name)) == false) {
+      throw new Error(`Validation of list failed: ${this.listHelper.errors}`);
     }
-    for (let item of this.items) {
+
+    this.items.map(item => {
       new item.itemHandler(conditions).updateQuality(item, item.qualityChange);
-    }
+    })
   }
   updateAll(conditions) {
     // must not change the order of execution
@@ -158,9 +160,9 @@ class ItemHandler {
 
   // adjustQuality method adjust quality when quality goes beyond minQuality and maxQuality.
   adjustQuality(item) {
-    item.quality <= this.minQuality? this.minimizeQuality(item): 
-    item.quality >= this.maxQuality? this.maximizeQuality(item):
-    item.quality == item.quality;
+    item.quality <= this.minQuality ? this.minimizeQuality(item) :
+      item.quality >= this.maxQuality ? this.maximizeQuality(item) :
+        item.quality == item.quality;
   }
   maximizeQuality(item) {
     item.quality = Math.max(this.maxQuality);
@@ -199,17 +201,15 @@ class BackstagePassItemHandler extends ItemHandler {
   constructor(conditions) {
     super();
     this.conditions = conditions;
-    this.dynamicListHelper = new DynamicValidator([
-      new NotDuplicatesRule('There are item duplicates in the list'),
+    this.listHelper = new DynamicValidator([
+      new NotDuplicatesRule('Duplicates found in the conditions'),
     ]
     )
-    
+
   }
-
-
   updateQuality(item, qualityChange) {
-    if(this.dynamicListHelper.validateItemList(this.conditions, (item => item.day))==false){
-      throw new Error('validation of backstagePassItemHandler failed');
+    if (this.listHelper.validateItemList(this.conditions, (item => item.day)) == false) {
+      throw new Error(`BackstagePassItemHandler valiation failed: ${this.listHelper.errors}`);
     }
 
     for (let condition of this.conditions) {
@@ -248,95 +248,75 @@ class ConjuredItemHandler extends NormalItemHandler {
 class DynamicValidator {
   constructor(rules) {
     this.rules = rules;
+    this.errors = [];
   }
   validateItem(data) {
-    let errors = {};
+    let errors = [];
     for (let field in this.rules) {
       let fieldRules = this.rules[field];
-      for (let rule of fieldRules) {
+      fieldRules.map(rule => {
         let errorMessage = rule.validate(data[field]);
         if (errorMessage) {
-          errors[field] = errorMessage;
-          break;
+          this.errors.push(errorMessage);
         }
-      }
+      })
     }
-    this.errors = errors;
-    return Object.keys(errors).length === 0;
+    return this.errors.length === 0;
   }
 
-  validateItemList(data, checkFunction){
-    let errors = {};
-      for (let rule of this.rules) {
-        let errorMessage = rule.validate(data, checkFunction);
-        if (errorMessage) {
-          errors = errorMessage;
-          break;
-        }      
-    }
-    this.errors = errors;
-    return Object.keys(errors).length === 0;
-  }
+  validateItemList(data, checkFunction) {
+    let errors = [];
+    this.rules.map(rule => {
+      let errorMessage = rule.validate(data, checkFunction);
+      if (errorMessage) {
+        errors.push(errorMessage);
+      }
+      this.errors = errors;
+    })
+    return this.errors.length === 0;
+  };
 }
 
-// must be 2 types of items
 
-
-// item
-class EqualLengthRule {
+// Item Rules
+class MaxLengthRule {
   constructor(requiredLength, errorMessage) {
     this.requiredLength = requiredLength;
     this.errorMessage = errorMessage;
-  }
-  validate(item) {
-    return item.length == this.Length ? this.errorMessage : null;
-  }
-}
-
-class MaxLengthRule extends EqualLengthRule {
-  constructor(requiredLength, errorMessage) {
-    super();
-  }
-  validate(item) {
-    return item.length < this.requiredLength ? this.errorMessage : null;
-  }
-}
-
-class MinLengthRule extends EqualLengthRule {
-  constructor(requiredLength, errorMessage) {
-    super();
   }
   validate(item) {
     return item.length > this.requiredLength ? this.errorMessage : null;
   }
 }
 
-// Item Rules
-class EqualValueRule {
+class MinLengthRule {
+  constructor(requiredLength, errorMessage) {
+    this.requiredLength = requiredLength;
+    this.errorMessage = errorMessage;
+  }
+  validate(item) {
+    return item.length < this.requiredLength ? this.errorMessage : null;
+  }
+}
+
+class MaxValueRule {
+  constructor(requiredValue, errorMessage) {
+    this.requiredValue = requiredValue;
+    this.errorMessage = errorMessage;
+
+  }
+  validate(item) {
+    return item > this.requiredValue ? this.errorMessage : null;
+  }
+}
+
+class MinValueRule {
   constructor(requiredValue, errorMessage) {
     this.requiredValue = requiredValue;
     this.errorMessage = errorMessage;
   }
   validate(item) {
-    return item.length == this.requiredValue ? this.errorMessage : null;
-  }
-}
-
-class maxValueRule extends EqualValueRule {
-  constructor(requiredValue, errorMessage) {
-    super();
-  }
-  validate(item) {
-    return item.length < this.requiredValue ? this.errorMessage : null;
-  }
-}
-
-class minValueRule extends EqualValueRule {
-  constructor(requiredValue, errorMessage) {
-    super();
-  }
-  validate(item) {
-    return item.length > this.requiredValue ? this.errorMessage : null;
+    return item < this.requiredValue ? this.errorMessage : null;
   }
 }
 
@@ -353,13 +333,13 @@ class RequiredRule {
 }
 
 // ItemList Rules
-class NotEmptyRule {
+class NumberOfItemRule {
   constructor(requiredLength, errorMessage) {
     this.requiredLength = requiredLength;
     this.errorMessage = errorMessage;
   }
   validate(items, checkFunction) {
-    return !items.find(item => item instanceof Item)? this.errorMessage : null;
+    return items.length <= this.requiredLength ? this.errorMessage : null;
   }
 }
 
