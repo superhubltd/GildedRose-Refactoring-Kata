@@ -1143,7 +1143,7 @@ describe("[Gilded Rose] 17. Condition: a. validator b. name, sellIn, quality in 
   })
 });
 
-describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) c. Invalid Items; Output: return 3 false", ()=>{
+describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) c. invalid item; Output: return 3 false", ()=>{
   it.each([
     [
       [
@@ -1288,7 +1288,7 @@ describe("[Gilded Rose] 18.iv Condition: a. validator b. validateItem(data) c. N
   })
 });
 
-describe("[Gilded Rose] 19.i Condition: a. validator b. validateItemList(data) c. duplicateItems; Output: return false", ()=>{
+describe("[Gilded Rose] 19.i Condition: a. validator b. validateItem(data) c. duplicateItems; Output: return false", ()=>{
   it.each([
     [
       [
@@ -1308,12 +1308,12 @@ describe("[Gilded Rose] 19.i Condition: a. validator b. validateItemList(data) c
         new NotDuplicatesRule('There are item duplicates in the list'),
       ]
       )
-      const validationItemList = helper.validateItemList(samples, checkFunction);
+      const validationItemList = helper.validateItem(samples, checkFunction);
       expect(validationItemList).toEqual(false);
   })
 });
 
-describe("[Gilded Rose] 19.ii Condition: a. validator b. validateItemList(data) c. Empty List; Output: return false", ()=>{
+describe("[Gilded Rose] 19.ii Condition: a. validator b. validateItem(data) c. Empty List; Output: return false", ()=>{
   it.each([
     [
       [
@@ -1327,12 +1327,12 @@ describe("[Gilded Rose] 19.ii Condition: a. validator b. validateItemList(data) 
       ]
       )
       const checkFunction = (item => item.name);
-      const validationItemList = helper.validateItemList(samples, checkFunction);
+      const validationItemList = helper.validateItem(samples, checkFunction);
       expect(validationItemList).toEqual(result);
   })
 });
 
-describe("[Gilded Rose] 19.iii Condition: a. validator b. validateItemList(data) c. Normal List; Output: return true", ()=>{
+describe("[Gilded Rose] 19.iii Condition: a. validator b. validateItem(data) c. Normal List; Output: return true", ()=>{
   it.each([
     [
       [
@@ -1354,7 +1354,7 @@ describe("[Gilded Rose] 19.iii Condition: a. validator b. validateItemList(data)
       ]
       )
       const checkFunction = (item => item.name);
-      const validationItemList = helper.validateItemList(samples, checkFunction);
+      const validationItemList = helper.validateItem(samples, checkFunction);
       expect(validationItemList).toEqual(result);
   })
 });

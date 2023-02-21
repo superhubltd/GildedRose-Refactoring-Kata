@@ -77,7 +77,6 @@ class Shop {
 
 
   assignItemType() {
-    // unit test on the validator or validated item
     let errorItems = this.items.filter(item => !this.itemHelper.validateItem(item));
     if(errorItems.length !== 0){
       throw new Error(`Validation of item type failed: ${this.itemHelper.showError(errorItems, this.itemHelper.errors)}`)
@@ -118,7 +117,7 @@ class Shop {
   }
 
   updateQuality(conditions) {
-    if (this.listHelper.validateItemList(this.items, (item => item.name)) == false) {
+    if (this.listHelper.validateItem(this.items, (item => item.name)) == false) {
       throw new Error(`Validation of list failed: ${this.listHelper.errors}`);
     }
 
@@ -134,7 +133,7 @@ class Shop {
   }
 }
 
-class ItemHandler {
+class ItemHandlerBase {
   constructor(conditions) {
     this.minQuality = 0;
     this.maxQuality = 50;
@@ -170,7 +169,7 @@ class ItemHandler {
   }
 }
 
-class LegendaryItemHandler extends ItemHandler {
+class LegendaryItemHandler extends ItemHandlerBase {
   constructor(conditions) {
     super();
     this.maxQuality = 80;
@@ -182,7 +181,7 @@ class LegendaryItemHandler extends ItemHandler {
   }
 }
 
-class EpicItemHandler extends ItemHandler {
+class EpicItemHandler extends ItemHandlerBase {
   constructor(conditions) {
     super();
   }
@@ -195,7 +194,7 @@ class EpicItemHandler extends ItemHandler {
   }
 }
 
-class BackstagePassItemHandler extends ItemHandler {
+class BackstagePassItemHandler extends ItemHandlerBase {
   constructor(conditions) {
     super();
     this.conditions = conditions;
@@ -206,7 +205,7 @@ class BackstagePassItemHandler extends ItemHandler {
 
   }
   updateQuality(item, qualityChange) {
-    if (this.listHelper.validateItemList(this.conditions, (item => item.day)) == false) {
+    if (this.listHelper.validateItem(this.conditions, (item => item.day)) == false) {
       throw new Error(`BackstagePassItemHandler valiation failed: ${this.listHelper.errors}`);
     }
 
@@ -222,7 +221,7 @@ class BackstagePassItemHandler extends ItemHandler {
 }
 
 
-class NormalItemHandler extends ItemHandler {
+class NormalItemHandler extends ItemHandlerBase {
   constructor(conditions) {
     super();
   }
@@ -248,28 +247,28 @@ class DynamicValidator {
     this.rules = rules;
     this.errors = [];
   }
-  validateItem(data) {
-    for (let field in this.rules) {
-      let fieldRules = this.rules[field];
-      fieldRules.map(rule => {
-        let errorMessage = rule.validate(data[field]);
+  validateItem(data, checkFunction) {
+    if(arguments.length == 2){
+      this.rules.map(rule => {
+        let errorMessage = rule.validate(data, checkFunction);
         if (errorMessage) {
           this.errors.push(errorMessage);
         }
       })
+    }else{
+      for (let field in this.rules) {
+        let fieldRules = this.rules[field];
+        fieldRules.map(rule => {
+          let errorMessage = rule.validate(data[field]);
+          if (errorMessage) {
+            this.errors.push(errorMessage);
+          }
+        })
+      }
     }
+    
     return this.errors.length === 0;
   }
-
-  validateItemList(data, checkFunction) {
-    this.rules.map(rule => {
-      let errorMessage = rule.validate(data, checkFunction);
-      if (errorMessage) {
-        this.errors.push(errorMessage);
-      }
-    })
-    return this.errors.length === 0;
-  };
 
   showError(errorItems, errorMessage){
     let errors = errorItems.map(item => `${JSON.stringify(item)} + ${errorMessage}`);
