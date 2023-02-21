@@ -79,7 +79,7 @@ class Shop {
   assignItemType() {
     let errorItems = this.items.filter(item => !this.itemHelper.validateItem(item));
     if(errorItems.length !== 0){
-      throw new Error(`Validation of item type failed: ${this.itemHelper.showError(errorItems, this.itemHelper.errors)}`)
+      throw new ValidationError(`Validation of item type failed: ${this.itemHelper.showError(errorItems, this.itemHelper.errors)}`)
     }
     this.items.map(item => {
       let type = null;
@@ -118,7 +118,7 @@ class Shop {
 
   updateQuality(conditions) {
     if (this.listHelper.validateItem(this.items, (item => item.name)) == false) {
-      throw new Error(`Validation of list failed: ${this.listHelper.errors}`);
+      throw new ValidationError(`Validation of list failed: ${this.listHelper.errors}`);
     }
 
     this.items.map(item => {
@@ -206,7 +206,7 @@ class BackstagePassItemHandler extends ItemHandlerBase {
   }
   updateQuality(item, qualityChange) {
     if (this.listHelper.validateItem(this.conditions, (item => item.day)) == false) {
-      throw new Error(`BackstagePassItemHandler valiation failed: ${this.listHelper.errors}`);
+      throw new ValidationError(`BackstagePassItemHandler valiation failed: ${this.listHelper.errors}`);
     }
 
     for (let condition of this.conditions) {
@@ -327,7 +327,7 @@ class NumberOfItemRule {
   }
 }
 
-class NotDuplicatesRule {
+class NotDuplicatesRule{
   constructor(errorMessage) {
     this.errorMessage = errorMessage;
   }
@@ -335,6 +335,14 @@ class NotDuplicatesRule {
     let validatedArr = (items).map(checkFunction);
     let isDuplicate = validatedArr.some((item, idx) => validatedArr.indexOf(item) != idx);
     return isDuplicate == true ? this.errorMessage : null;
+  }
+}
+
+class ValidationError extends Error{
+  constructor(message){
+    super(message);
+    this.name = "Validation error";
+    this.message = message;
   }
 }
 
