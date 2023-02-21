@@ -1143,7 +1143,7 @@ describe("[Gilded Rose] 17. Condition: a. validator b. name, sellIn, quality in 
   })
 });
 
-describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) ; Output: return 3 false", ()=>{
+describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) c. Invalid Items; Output: return 3 false", ()=>{
   it.each([
     [
       [
@@ -1194,7 +1194,7 @@ describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) ; Out
   })
 });
 
-describe("[Gilded Rose] 18.ii Condition: a. validator b. validateItem(data) ; Output: return 2 false", ()=>{
+describe("[Gilded Rose] 18.ii Condition: a. validator b. validateItem(data) c. Invalid Items; Output: return 2 false", ()=>{
   it.each([
     [
       [
@@ -1225,7 +1225,7 @@ describe("[Gilded Rose] 18.ii Condition: a. validator b. validateItem(data) ; Ou
   })
 });
 
-describe("[Gilded Rose] 18.iii Condition: a. validator b. validateItem(data) ; Output: return 1 false", ()=>{
+describe("[Gilded Rose] 18.iii Condition: a. validator b. validateItem(data) c. Invalid Items; Output: return 1 false", ()=>{
   it.each([
     [
       [
@@ -1257,7 +1257,7 @@ describe("[Gilded Rose] 18.iii Condition: a. validator b. validateItem(data) ; O
 });
 
 
-describe("[Gilded Rose] 18.iv Condition: a. validator b. validateItem(data) ; Output: return 3 true", ()=>{
+describe("[Gilded Rose] 18.iv Condition: a. validator b. validateItem(data) c. Normal Items; Output: return 3 true", ()=>{
   it.each([
     [
       [
@@ -1356,5 +1356,71 @@ describe("[Gilded Rose] 19.iii Condition: a. validator b. validateItemList(data)
       const checkFunction = (item => item.name);
       const validationItemList = helper.validateItemList(samples, checkFunction);
       expect(validationItemList).toEqual(result);
+  })
+});
+
+describe("[Gilded Rose] 20.i Condition: a. validator b. showError(errorItems, errorMessage) c. Invalid items; Output: errorMessage", ()=>{
+  it.each([
+    [
+      [
+        new Item("", 50, 49), 
+        new Item("generous", null, 49), 
+        new Item("Sulfuras, Hand of Ragnaros", 50, null), 
+      ]
+    ], 
+
+  ])('Original item: %p expecting errorMessage',(samples)=>{
+    const helper = new DynamicValidator({
+      name: [
+        new RequiredRule('Name is required'),
+        new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+      ],
+      sellIn: [
+        new RequiredRule('SellIn is required'),
+        new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+      ],
+      quality: [
+        new RequiredRule('Quality is required'),
+        new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+      ]
+    }
+    )
+      const errorItems = samples.filter(item => !helper.validateItem(item))
+      const showError = helper.showError(errorItems, helper.errors);
+      expect(showError[0]).toContain(`Name is required`);
+      expect(showError[0]).toContain(`SellIn is required`);
+      expect(showError[0]).toContain(`Quality is required`);
+  })
+});
+
+describe("[Gilded Rose] 20.ii Condition: a. validator b. showError(errorItems, errorMessage) c. Normal List; Output: emptyArray", ()=>{
+  it.each([
+    [
+      [
+        new Item("Curious", 50, 49), 
+        new Item("generous", 50, 49), 
+        new Item("Sulfuras, Hand of Ragnaros", 50, 80), 
+      ]
+    ], 
+
+  ])('Original item: %p expecting emptyArray',(samples)=>{
+    const helper = new DynamicValidator({
+      name: [
+        new RequiredRule('Name is required'),
+        new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+      ],
+      sellIn: [
+        new RequiredRule('SellIn is required'),
+        new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+      ],
+      quality: [
+        new RequiredRule('Quality is required'),
+        new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+      ]
+    }
+    )
+      const errorItems = samples.filter(item => !helper.validateItem(item))
+      const showError = helper.showError(errorItems, helper.errors);
+      expect(showError).toEqual([]);
   })
 });

@@ -274,9 +274,7 @@ class DynamicValidator {
   showError(errorItems, errorMessage){
     let errors = errorItems.map(item => `${JSON.stringify(item)} + ${errorMessage}`);
     return errors;
-  }
-      // map  => a method inside the class Validator -> this.helper.function
-      
+  }   
 }
 
 // Item Rules
