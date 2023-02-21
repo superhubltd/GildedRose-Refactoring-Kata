@@ -78,12 +78,9 @@ class Shop {
 
   assignItemType() {
     // unit test on the validator or validated item
-    let error = this.items.filter(item => !this.itemHelper.validateItem(item))
-    // map  => a method inside the class Validator -> this.helper.function
-                          .map(item=> `${JSON.stringify(item)} + ${this.itemHelper.errors}`)
-    if(error.length !== 0){
-      console.log('error',error)
-      throw new Error(`Validation of item type failed: ${error}`)
+    let errorItems = this.items.filter(item => !this.itemHelper.validateItem(item));
+    if(errorItems.length !== 0){
+      throw new Error(`Validation of item type failed: ${this.itemHelper.showError(errorItems, this.itemHelper.errors)}`)
     }
     this.items.map(item => {
       let type = null;
@@ -273,6 +270,13 @@ class DynamicValidator {
     })
     return this.errors.length === 0;
   };
+
+  showError(errorItems, errorMessage){
+    let errors = errorItems.map(item => `${JSON.stringify(item)} + ${errorMessage}`);
+    return errors;
+  }
+      // map  => a method inside the class Validator -> this.helper.function
+      
 }
 
 // Item Rules
@@ -342,5 +346,10 @@ module.exports = {
   Item,
   Shop,
   DynamicValidator,
+  LengthRule,
+  ValueRule,
+  RequiredRule,
+  NumberOfItemRule,
+  NotDuplicatesRule,
 }
 

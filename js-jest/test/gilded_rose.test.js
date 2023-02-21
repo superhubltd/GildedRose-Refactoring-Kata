@@ -1,4 +1,13 @@
-const {Shop,  Item} = require("../src/gilded_rose");
+const {
+  Item,
+  Shop,
+  DynamicValidator,
+  LengthRule,
+  ValueRule,
+  RequiredRule,
+  NumberOfItemRule,
+  NotDuplicatesRule,
+} = require("../src/gilded_rose");
 
 const conditions = [
   { day: 100, qualityChange: 1 },
@@ -1131,5 +1140,221 @@ describe("[Gilded Rose] 17. Condition: a. validator b. name, sellIn, quality in 
         expect(err.message).toContain('SellIn is required');
         expect(err.message).toContain('Quality is required');
       }
+  })
+});
+
+describe("[Gilded Rose] 18.i Condition: a. validator b. validateItem(data) ; Output: return 3 false", ()=>{
+  it.each([
+    [
+      [
+        new Item("", 50, 50),
+        new Item("abc", null, 50),
+        new Item("abc", 50, null),
+      ], [false, false, false]
+    ],  
+    [
+      [
+        new Item("", 50, 50),
+        new Item("", null, 50),
+        new Item("", undefined, null),
+      ], [false, false, false]
+    ], 
+    [
+      [
+        new Item("abc", 50, null),
+        new Item("", null, 50),
+        new Item("", undefined, null),
+      ], [false, false, false]
+    ], 
+    [
+      [
+        new Item("", 50, null),
+        new Item("", null, 50),
+        new Item("abc", 50, 50),
+      ], [false, false, false]
+    ], 
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator({
+        name: [
+          new RequiredRule('Name is required'),
+          new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+        ],
+        sellIn: [
+          new RequiredRule('SellIn is required'),
+          new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+        ],
+        quality: [
+          new RequiredRule('Quality is required'),
+          new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+        ]
+      }
+      )
+      const validationItem = samples.map(item=>helper.validateItem(item))
+      expect(validationItem).toEqual(result);
+  })
+});
+
+describe("[Gilded Rose] 18.ii Condition: a. validator b. validateItem(data) ; Output: return 2 false", ()=>{
+  it.each([
+    [
+      [
+        new Item("abc", 50, 50),
+        new Item("", undefined, 50),
+        new Item("abcde", 50, 50),
+      ], [true, false, false]
+    ],  
+
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator({
+        name: [
+          new RequiredRule('Name is required'),
+          new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+        ],
+        sellIn: [
+          new RequiredRule('SellIn is required'),
+          new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+        ],
+        quality: [
+          new RequiredRule('Quality is required'),
+          new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+        ]
+      }
+      )
+      const validationItem = samples.map(item=>helper.validateItem(item))
+      expect(validationItem).toEqual(result);
+  })
+});
+
+describe("[Gilded Rose] 18.iii Condition: a. validator b. validateItem(data) ; Output: return 1 false", ()=>{
+  it.each([
+    [
+      [
+        new Item("abc", 50, 50),
+        new Item("abced", 50, 50),
+        new Item("abcde", null, 50),
+      ], [true, true, false]
+    ],  
+
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator({
+        name: [
+          new RequiredRule('Name is required'),
+          new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+        ],
+        sellIn: [
+          new RequiredRule('SellIn is required'),
+          new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+        ],
+        quality: [
+          new RequiredRule('Quality is required'),
+          new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+        ]
+      }
+      )
+      const validationItem = samples.map(item=>helper.validateItem(item))
+      expect(validationItem).toEqual(result);
+  })
+});
+
+
+describe("[Gilded Rose] 18.iv Condition: a. validator b. validateItem(data) ; Output: return 3 true", ()=>{
+  it.each([
+    [
+      [
+        new Item("abc", 50, 50),
+        new Item("abced", 50, 50),
+        new Item("abcde", 50, 50),
+      ], [true, true, true]
+    ],  
+
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator({
+        name: [
+          new RequiredRule('Name is required'),
+          new LengthRule(100, 1,  `Item's name must be between 1 and 100 alphanumeric number`),
+        ],
+        sellIn: [
+          new RequiredRule('SellIn is required'),
+          new ValueRule(50, -5,  `Item's sellIn must be between -5 and 50`),
+        ],
+        quality: [
+          new RequiredRule('Quality is required'),
+          new ValueRule(80, 0, `Item's quality must be between 0 to 80`),
+        ]
+      }
+      )
+      const validationItem = samples.map(item=>helper.validateItem(item))
+      expect(validationItem).toEqual(result);
+  })
+});
+
+describe("[Gilded Rose] 19.i Condition: a. validator b. validateItemList(data) c. duplicateItems; Output: return false", ()=>{
+  it.each([
+    [
+      [
+        new Item("abc", 50, 50),
+        new Item("abc", 50, 50),
+        new Item("abcde", 50, 50),
+      ], (item => item.name)
+    ], 
+    [
+      duplicateconditions, 
+      (item => item.day)
+    ] 
+
+  ])('Original item: %p expecting result: return false',(samples, checkFunction)=>{
+      const helper = new DynamicValidator([
+        new NumberOfItemRule(0, 'The itemList cannot be empty'),
+        new NotDuplicatesRule('There are item duplicates in the list'),
+      ]
+      )
+      const validationItemList = helper.validateItemList(samples, checkFunction);
+      expect(validationItemList).toEqual(false);
+  })
+});
+
+describe("[Gilded Rose] 19.ii Condition: a. validator b. validateItemList(data) c. Empty List; Output: return false", ()=>{
+  it.each([
+    [
+      [
+      ], false
+    ], 
+
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator([
+        new NumberOfItemRule(0, 'The itemList cannot be empty'),
+        new NotDuplicatesRule('There are item duplicates in the list'),
+      ]
+      )
+      const checkFunction = (item => item.name);
+      const validationItemList = helper.validateItemList(samples, checkFunction);
+      expect(validationItemList).toEqual(result);
+  })
+});
+
+describe("[Gilded Rose] 19.iii Condition: a. validator b. validateItemList(data) c. Normal List; Output: return true", ()=>{
+  it.each([
+    [
+      [
+        new Item("curious", 50, 49), 
+        new Item("generous", 50, 49), 
+        new Item("Sulfuras, Hand of Ragnaros", 50, 49), 
+      ], true
+    ], 
+    [
+      [
+        new Item("curious", 50, 49), 
+      ], true
+    ], 
+
+  ])('Original item: %p expecting result: %p',(samples, result)=>{
+      const helper = new DynamicValidator([
+        new NumberOfItemRule(0, 'The itemList cannot be empty'),
+        new NotDuplicatesRule('There are item duplicates in the list'),
+      ]
+      )
+      const checkFunction = (item => item.name);
+      const validationItemList = helper.validateItemList(samples, checkFunction);
+      expect(validationItemList).toEqual(result);
   })
 });
