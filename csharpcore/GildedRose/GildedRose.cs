@@ -1,95 +1,86 @@
-﻿using System.Collections.Generic;
+﻿using GildedRoseKata.Constants;
+using System;
+using System.Collections.Generic;
 
 namespace GildedRoseKata
 {
     public class GildedRose
     {
-        public class SpecialItemNames
+        public readonly IList<Item> _items;
+        public GildedRose(IList<Item> items)
         {
-            public const string AGED = "Aged Brie";
-            public const string BACKSTAGE = "Backstage passes to a TAFKAL80ETC concert";
-            public const string SULFURAS = "Sulfuras, Hand of Ragnaros";
+            _items = items;
         }
 
-        IList<Item> Items;
-        public GildedRose(IList<Item> Items)
+        private void UpdateForAged(Item item)
         {
-            this.Items = Items;
+            item.SellIn--;
+
+            if (item.Quality < QualityLimit.MAX_LIMIT)
+                item.Quality++;
+
+            if (item.SellIn < Default.ZERO && item.Quality < QualityLimit.MAX_LIMIT)
+                item.Quality++;
         }
 
-        public void UpdateForAged(Item item)
+        private void UpdateForBackStage(Item item)
         {
-            if (item.Quality < 50)
-            {
-                item.Quality = item.Quality + 1;
-            }
+            if (item.Quality < QualityLimit.MAX_LIMIT)
+                item.Quality++;
 
-            if (item.Name != "Sulfuras, Hand of Ragnaros")
-            {
-                item.SellIn = item.SellIn - 1;
-            }
+            //Do less if SellIn is less than 10 Days
+            if (item.SellIn <= Default.TEN_DAYS && item.Quality < QualityLimit.MAX_LIMIT)
+                    item.Quality++;
 
-            if (item.SellIn < 0 && item.Quality < 50)
-            {
-                item.Quality = item.Quality + 1;
-            }
+            //Do less if SellIn is less than 5 Days
+            if (item.SellIn <= Default.FIVE_DAYS && item.Quality < QualityLimit.MAX_LIMIT)
+                item.Quality++;
+
+            item.SellIn--;
+
+            if (item.SellIn < Default.ZERO)
+                item.Quality = QualityLimit.MIN_LIMIT;
         }
 
-        public void UpdateForBackStage(Item item)
+        private void UpdateForNormal(Item item)
         {
-            if (item.Quality < 50)
-            {
-                item.Quality = item.Quality + 1;
-
-                if (item.Name == "Backstage passes to a TAFKAL80ETC concert")
-                {
-                    if (item.SellIn < 11 && item.Quality < 50)
-                    {
-                        item.Quality = item.Quality + 1;
-                    }
-
-                    if (item.SellIn < 6 && item.Quality < 50)
-                    {
-                        item.Quality = item.Quality + 1;
-                    }
-                }
-            }
-
-            if (item.Name != "Sulfuras, Hand of Ragnaros")
-            {
-                item.SellIn = item.SellIn - 1;
-            }
-
-            if (item.SellIn < 0 && item.Name != "Aged Brie")
-            {
-                item.Quality = item.Quality - item.Quality;
-            }
+            UpdateItemByDegradeCount(item, Default.DEGRADE_VALUE_TO_ONE);
         }
-        public void UpdateForSulfuras(Item item)
+
+        private void UpdateConjured(Item item)
         {
+            UpdateItemByDegradeCount(item, Default.DEGRADE_VALUE_TO_TWO);
         }
-        public void UpdateForNormal(Item item)
+
+        private void UpdateItemByDegradeCount(Item item, int degradeCount)
         {
-            if (item.Quality > 0)
-            {
-                item.Quality = item.Quality - 1;
-            }
+            item.SellIn--;
 
-            if (item.Name != "Sulfuras, Hand of Ragnaros")
-            {
-                item.SellIn = item.SellIn - 1;
-            }
+            if (item.Quality > QualityLimit.MIN_LIMIT)
+                item.Quality = GetDegradedQuality(item.Quality, degradeCount);
 
-            if (item.SellIn < 0 && item.Quality > 0)
-            {
-                item.Quality = item.Quality - 1;
-            }
+            if (item.SellIn < Default.ZERO && item.Quality > QualityLimit.MIN_LIMIT)
+                item.Quality = GetDegradedQuality(item.Quality, degradeCount);
+        }
+
+        private int GetDegradedQuality(int oldQuality, int degradeCount)
+        {
+            var diff = oldQuality - degradeCount;
+            return diff > QualityLimit.MIN_LIMIT ? diff : QualityLimit.MIN_LIMIT;
         }
 
         public void UpdateQuality()
         {
-            foreach(var item in Items)
+            foreach(var item in _items)
             {
+                if (item.Quality < QualityLimit.MIN_LIMIT || item.Quality > QualityLimit.MAX_LIMIT)
+                {                    
+                    if(item.Name == SpecialItemNames.SULFURAS && item.Quality != QualityLimit.SULFURAS_STANDARD)
+                        throw new Exception(ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT);
+
+                    throw new Exception(ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT);
+                }
+
                 switch(item.Name)
                 {
                     case SpecialItemNames.AGED:
@@ -98,8 +89,10 @@ namespace GildedRoseKata
                     case SpecialItemNames.BACKSTAGE:
                         UpdateForBackStage(item);
                         continue;
-                    case SpecialItemNames.SULFURAS:
-                        UpdateForSulfuras(item);
+                    case SpecialItemNames.SULFURAS: /* Sulfuras sellIn and quality never change */
+                        continue;
+                    case SpecialItemNames.CONJURED:
+                        UpdateConjured(item);
                         continue;
                     default:
                         UpdateForNormal(item);

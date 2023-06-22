@@ -1,8 +1,8 @@
 ﻿using Xunit;
 using System.Collections.Generic;
+using System;
 using GildedRoseKata;
-using ApprovalUtilities.Utilities;
-using System.Diagnostics.Metrics;
+using GildedRoseKata.Constants;
 
 namespace GildedRoseTests
 {
@@ -17,399 +17,278 @@ namespace GildedRoseTests
             Assert.Equal("foo", Items[0].Name);
         }
 
-        #region Test Scenario 1
-        // All items have a SellIn value which denotes the number of days we have to sell the item
-        [Fact]
-        public void TestScenario1_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 1, Quality = 0 }};
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-        }
-        [Fact]
-        public void TestScenario1_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario1_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].SellIn);
-        }
-        [Fact]
-        public void TestScenario1_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-        }
+        [Theory]
+        #region Aged
+        [InlineData(SpecialItemNames.AGED, 0, 0,  -1, 2)]
+        [InlineData(SpecialItemNames.AGED, 0, 1,  -1, 3)]
+        [InlineData(SpecialItemNames.AGED, 0, 50, -1, 50)]
+        [InlineData(SpecialItemNames.AGED, 0, 49, -1, 50)]
+        [InlineData(SpecialItemNames.AGED, 0, 48, -1, 50)]
+        [InlineData(SpecialItemNames.AGED, 0, 47, -1, 49)]
+        [InlineData(SpecialItemNames.AGED, 1, 0,  0, 1)]
+        [InlineData(SpecialItemNames.AGED, 1, 1,  0, 2)]
+        [InlineData(SpecialItemNames.AGED, 1, 50, 0, 50)]
+        [InlineData(SpecialItemNames.AGED, 1, 49, 0, 50)]
+        [InlineData(SpecialItemNames.AGED, 1, 48, 0, 49)]
+        [InlineData(SpecialItemNames.AGED, 1, 47, 0, 48)]
+        [InlineData(SpecialItemNames.AGED, 2, 0,  1, 1)]
+        [InlineData(SpecialItemNames.AGED, 2, 1,  1, 2)]
+        [InlineData(SpecialItemNames.AGED, 2, 50, 1, 50)]
+        [InlineData(SpecialItemNames.AGED, 2, 49, 1, 50)]
+        [InlineData(SpecialItemNames.AGED, 2, 48, 1, 49)]
+        [InlineData(SpecialItemNames.AGED, 2, 47, 1, 48)]
+        [InlineData(SpecialItemNames.AGED, 10, 0, 9, 1)]
+        [InlineData(SpecialItemNames.AGED, 10, 1, 9, 2)]
+        [InlineData(SpecialItemNames.AGED, 10, 50, 9, 50)]
+        [InlineData(SpecialItemNames.AGED, 10, 49, 9, 50)]
+        [InlineData(SpecialItemNames.AGED, 10, 48, 9, 49)]
+        [InlineData(SpecialItemNames.AGED, 10, 47, 9, 48)]
         #endregion
 
-        #region Test Scenario 2
-        // All items have a Quality value which denotes how valuable the item is
-        [Fact]
+        #region Backstage
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 0, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 1, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 5, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 6, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 10, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 11, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 50, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 49, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 48, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 47, -1, 0)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 46, -1, 0)]
 
-        //Note: "Aged Brie" actually increases in Quality the older it gets
-        public void TestScenario2_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 0, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(3, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario2_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario2_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario2_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 0, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].Quality);
-        }
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 0, 0, 3)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 1, 0, 4)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 5, 0, 8)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 6, 0, 9)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 10, 0, 13)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 11, 0, 14)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 50, 0, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 49, 0, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 48, 0, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 47, 0, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 1, 46, 0, 49)]
+
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 0, 4, 3)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 1, 4, 4)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 5, 4, 8)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 6, 4, 9)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 10, 4, 13)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 11, 4, 14)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 50, 4, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 49, 4, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 48, 4, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 47, 4, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 5, 46, 4, 49)]
+
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 0, 5, 2)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 1, 5, 3)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 5, 5, 7)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 6, 5, 8)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 10, 5, 12)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 11, 5, 13)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 50, 5, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 49, 5, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 48, 5, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 47, 5, 49)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 6, 46, 5, 48)]
+
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 0, 9, 2)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 1, 9, 3)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 5, 9, 7)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 6, 9, 8)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 10, 9, 12)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 11, 9, 13)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 50, 9, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 49, 9, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 48, 9, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 47, 9, 49)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 10, 46, 9, 48)]
+
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 0, 10, 1)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 1, 10, 2)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 5, 10, 6)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 6, 10, 7)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 10, 10, 11)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 11, 10, 12)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 50, 10, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 49, 10, 50)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 48, 10, 49)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 47, 10, 48)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 11, 46, 10, 47)]
         #endregion
 
-        #region Test Scenario 3
-        // At the end of each day our system lowers both values for every item
-        [Fact]
-
-        //Note: "Aged Brie" actually increases in Quality the older it gets
-        public void TestScenario3_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 1, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(2, Items[0].Quality);
-        }
-
-        [Fact]
-        //Note: "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches
-        public void TestScenario3_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 1, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(4, Items[0].Quality);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario3_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 1, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].SellIn);
-            Assert.Equal(1, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario3_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 1, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
+        #region Sulfuras
+        [InlineData(SpecialItemNames.SULFURAS, 0, 0, 0, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 1, 0, 1)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 10, 0, 10)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 20, 0, 20)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 30, 0, 30)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 40, 0, 40)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 50, 0, 50)]
+        [InlineData(SpecialItemNames.SULFURAS, 1, 0, 1, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 10, 0, 10, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 20, 0, 20, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 30, 0, 30, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 40, 0, 40, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 50, 0, 50, 0)]
+        [InlineData(SpecialItemNames.SULFURAS, 1, 1, 1, 1)]
+        [InlineData(SpecialItemNames.SULFURAS, 10, 10, 10, 10)]
+        [InlineData(SpecialItemNames.SULFURAS, 20, 20, 20, 20)]
+        [InlineData(SpecialItemNames.SULFURAS, 30, 30, 30, 30)]
+        [InlineData(SpecialItemNames.SULFURAS, 40, 40, 40, 40)]
+        [InlineData(SpecialItemNames.SULFURAS, 50, 50, 50, 50)]
         #endregion
 
-        #region Test Scenario 4
-        // Once the sell by date has passed, Quality degrades twice as fast
-        [Fact]
+        #region Conjured
+        [InlineData(SpecialItemNames.CONJURED, 0, 0, -1, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 1, -1, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 2, -1, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 3, -1, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 4, -1, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 5, -1, 1)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 50, -1, 46)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 49, -1, 45)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 48, -1, 44)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 47, -1, 43)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 46, -1, 42)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 45, -1, 41)]
 
-        //Note: "Aged Brie" actually increases in Quality the older it gets
-        public void TestScenario4_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 0, Quality = 3 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(5, Items[0].Quality);
-        }
-
-        [Fact]
-        //Note: "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches
-        public void TestScenario4_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 3 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario4_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 3 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(3, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario4_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 0, Quality = 3 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(1, Items[0].Quality);
-        }
+        [InlineData(SpecialItemNames.CONJURED, 1, 0, 0, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 1, 0, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 2, 0, 0)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 3, 0, 1)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 4, 0, 2)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 5, 0, 3)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 50, 0, 48)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 49, 0, 47)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 48, 0, 46)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 47, 0, 45)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 46, 0, 44)]
+        [InlineData(SpecialItemNames.CONJURED, 1, 45, 0, 43)]
         #endregion
 
-        #region Test Scenario 5
-        // The Quality of an item is never negative
-        [Fact]
+        #region Normal
+        [InlineData("Normal Me", 0, 0, -1, 0)]
+        [InlineData("Normal Me", 0, 1, -1, 0)]
+        [InlineData("Normal Me", 0, 2, -1, 0)]
+        [InlineData("Normal Me", 0, 3, -1, 1)]
+        [InlineData("Normal Me", 0, 4, -1, 2)]
+        [InlineData("Normal Me", 0, 5, -1, 3)]
+        [InlineData("Normal Me", 0, 50, -1, 48)]
+        [InlineData("Normal Me", 0, 49, -1, 47)]
+        [InlineData("Normal Me", 0, 48, -1, 46)]
+        [InlineData("Normal Me", 0, 47, -1, 45)]
+        [InlineData("Normal Me", 0, 46, -1, 44)]
+        [InlineData("Normal Me", 0, 45, -1, 43)]
 
-        //Note: "Aged Brie" actually increases in Quality the older it gets
-        public void TestScenario5_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality >= 0);
-        }
-
-        [Fact]
-        //Note: "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches
-        public void TestScenario5_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality >= 0);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario5_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality >= 0);
-        }
-        [Fact]
-        public void TestScenario5_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality >= 0);
-        }
+        [InlineData("Normal Me", 1, 0, 0, 0)]
+        [InlineData("Normal Me", 1, 1, 0, 0)]
+        [InlineData("Normal Me", 1, 2, 0, 1)]
+        [InlineData("Normal Me", 1, 3, 0, 2)]
+        [InlineData("Normal Me", 1, 4, 0, 3)]
+        [InlineData("Normal Me", 1, 5, 0, 4)]
+        [InlineData("Normal Me", 1, 50, 0, 49)]
+        [InlineData("Normal Me", 1, 49, 0, 48)]
+        [InlineData("Normal Me", 1, 48, 0, 47)]
+        [InlineData("Normal Me", 1, 47, 0, 46)]
+        [InlineData("Normal Me", 1, 46, 0, 45)]
+        [InlineData("Normal Me", 1, 45, 0, 44)]
         #endregion
 
-        #region Test Scenario 6
-        // "Aged Brie" actually increases in Quality the older it gets
-        [Fact]
-        public void TestScenario6_AGED_0()
+        public void ValidData_Test(string name, int sellIn, int quality, int expectedSellIn, int expectedQuality)
         {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 0, Quality = 0 } };
+            //Arrange
+            IList<Item> Items = new List<Item> { new Item { Name = name, SellIn = sellIn, Quality = quality } };
             GildedRose app = new GildedRose(Items);
+
+            //Act
             app.UpdateQuality();
-            Assert.Equal(2, Items[0].Quality);
+
+            //Assert
+            Assert.Equal(expectedSellIn, Items[0].SellIn);
+            Assert.Equal(expectedQuality, Items[0].Quality);
         }
-        [Fact]
-        public void TestScenario6_AGED_1()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].Quality);
-        }
+
+        [Theory]
+
+        #region Aged
+        [InlineData(SpecialItemNames.AGED, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
 
-        #region Test Scenario 7
-        // The Quality of an item is never more than 50
-        [Fact]
-
-        //Note: "Aged Brie" actually increases in Quality the older it gets
-        public void TestScenario7_AGED()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Aged Brie", SellIn = 0, Quality = 50 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality <= 50);
-        }
-
-        [Fact]
-        //Note: "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches
-        public void TestScenario7_BACKSTAGE()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 50 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality <= 50);
-        }
-        [Fact]
-        //Note: "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        public void TestScenario7_SULFURAS()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 50 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality <= 50);
-        }
-        [Fact]
-        public void TestScenario7_NORMAL()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Normal Me", SellIn = 0, Quality = 50 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.True(Items[0].Quality <= 50);
-        }
+        #region Backstage
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
 
-        #region Test Scenario 8
-        // "Sulfuras", being a legendary item, never has to be sold or decreases in Quality
-        [Fact]
-        public void TestScenario8_SULFURAS_0()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario8_SULFURAS_1()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario8_SULFURAS_2()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 0, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(1, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario8_SULFURAS_3()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Sulfuras, Hand of Ragnaros", SellIn = 1, Quality = 1 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(1, Items[0].SellIn);
-            Assert.Equal(1, Items[0].Quality);
-        }
+        #region Sulfuras
+        [InlineData(SpecialItemNames.SULFURAS, 0, -1, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -2, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -3, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -4, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -5, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 51, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 52, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 53, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 54, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
         #endregion
 
-        #region Test Scenario 9
-        /* "Backstage passes", like aged brie, increases in Quality as its SellIn value approaches;
-            Quality increases by 2 when there are 10 days or less and by 3 when there are 5 days or less but
-            Quality drops to 0 after the concert*/
-        [Fact]
-        public void TestScenario9_BACKSTAGE_0()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 10, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(9, Items[0].SellIn);
-            Assert.Equal(2, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_1()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 5, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(4, Items[0].SellIn);
-            Assert.Equal(3, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_2()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 1, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(3, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_3()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 0 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_4()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 10, Quality = 30 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(9, Items[0].SellIn);
-            Assert.Equal(32, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_5()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 5, Quality = 30 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(4, Items[0].SellIn);
-            Assert.Equal(33, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_6()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 1, Quality = 30 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(0, Items[0].SellIn);
-            Assert.Equal(33, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_7()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 0, Quality = 30 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(-1, Items[0].SellIn);
-            Assert.Equal(0, Items[0].Quality);
-        }
-        [Fact]
-        public void TestScenario9_BACKSTAGE_8()
-        {
-            IList<Item> Items = new List<Item> { new Item { Name = "Backstage passes to a TAFKAL80ETC concert", SellIn = 15, Quality = 30 } };
-            GildedRose app = new GildedRose(Items);
-            app.UpdateQuality();
-            Assert.Equal(14, Items[0].SellIn);
-            Assert.Equal(31, Items[0].Quality);
-        }
+        #region Conjured
+        [InlineData(SpecialItemNames.CONJURED, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
+
+        #region Normal
+        [InlineData("Normal Me", 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        #endregion
+        public void InvalidData_Quantity_Except_Sulfuras_Test(string name, int sellIn, int quality, string expectedErrorMessage)
+        {
+            string errroMessage = string.Empty;
+            try
+            {
+                //Arrange
+                IList<Item> Items = new List<Item> { new Item { Name = name, SellIn = sellIn, Quality = quality } };
+                GildedRose app = new GildedRose(Items);
+
+                //Act
+                app.UpdateQuality();
+            }
+            catch(Exception ex) 
+            {
+                errroMessage = ex.Message;
+            }
+            Assert.Equal(expectedErrorMessage, errroMessage);
+        }
     }
 }
