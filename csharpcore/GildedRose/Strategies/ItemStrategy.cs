@@ -9,17 +9,17 @@ namespace GildedRoseKata.Strategies
         {
             item.SellIn--;
 
-            if (item.Quality > QualityLimit.MIN_LIMIT)
+            if (item.Quality > QualityLimit.DEFAULT_MIN_LIMIT)
                 item.Quality = GetDegradedQuality(item.Quality, degratedCount);
 
-            if (item.SellIn < Default.ZERO && item.Quality > QualityLimit.MIN_LIMIT)
+            if (item.SellIn < Default.ZERO && item.Quality > QualityLimit.DEFAULT_MIN_LIMIT)
                 item.Quality = GetDegradedQuality(item.Quality, degratedCount);
         }
 
         private int GetDegradedQuality(int oldQuality, int degradeCount)
         {
             var diff = oldQuality - degradeCount;
-            return diff > QualityLimit.MIN_LIMIT ? diff : QualityLimit.MIN_LIMIT;
+            return diff > QualityLimit.DEFAULT_MIN_LIMIT ? diff : QualityLimit.DEFAULT_MIN_LIMIT;
         }
     }
 
@@ -27,21 +27,21 @@ namespace GildedRoseKata.Strategies
     {
         public override void UpdateItem(Item item)
         {
-            if (item.Quality < QualityLimit.MAX_LIMIT)
+            if (item.Quality < QualityLimit.DEFAULT_MAX_LIMIT)
                 item.Quality++;
 
             //Do less if SellIn is less than 10 Days
-            if (item.SellIn <= Default.TEN_DAYS && item.Quality < QualityLimit.MAX_LIMIT)
+            if (item.SellIn <= Default.TEN_DAYS && item.Quality < QualityLimit.DEFAULT_MAX_LIMIT)
                 item.Quality++;
 
             //Do less if SellIn is less than 5 Days
-            if (item.SellIn <= Default.FIVE_DAYS && item.Quality < QualityLimit.MAX_LIMIT)
+            if (item.SellIn <= Default.FIVE_DAYS && item.Quality < QualityLimit.DEFAULT_MAX_LIMIT)
                 item.Quality++;
 
             item.SellIn--;
 
             if (item.SellIn < Default.ZERO)
-                item.Quality = QualityLimit.MIN_LIMIT;
+                item.Quality = QualityLimit.DEFAULT_MIN_LIMIT;
         }
     }
 
@@ -51,10 +51,10 @@ namespace GildedRoseKata.Strategies
         {
             item.SellIn--;
 
-            if (item.Quality < QualityLimit.MAX_LIMIT)
+            if (item.Quality < QualityLimit.DEFAULT_MAX_LIMIT)
                 item.Quality++;
 
-            if (item.SellIn < Default.ZERO && item.Quality < QualityLimit.MAX_LIMIT)
+            if (item.SellIn < Default.ZERO && item.Quality < QualityLimit.DEFAULT_MAX_LIMIT)
                 item.Quality++;
         }
     }

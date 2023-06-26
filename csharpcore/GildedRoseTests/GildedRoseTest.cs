@@ -120,25 +120,13 @@ namespace GildedRoseTests
         #endregion
 
         #region Sulfuras
-        [InlineData(SpecialItemNames.SULFURAS, 0, 0, 0, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 1, 0, 1)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 10, 0, 10)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 20, 0, 20)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 30, 0, 30)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 40, 0, 40)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 50, 0, 50)]
-        [InlineData(SpecialItemNames.SULFURAS, 1, 0, 1, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 10, 0, 10, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 20, 0, 20, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 30, 0, 30, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 40, 0, 40, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 50, 0, 50, 0)]
-        [InlineData(SpecialItemNames.SULFURAS, 1, 1, 1, 1)]
-        [InlineData(SpecialItemNames.SULFURAS, 10, 10, 10, 10)]
-        [InlineData(SpecialItemNames.SULFURAS, 20, 20, 20, 20)]
-        [InlineData(SpecialItemNames.SULFURAS, 30, 30, 30, 30)]
-        [InlineData(SpecialItemNames.SULFURAS, 40, 40, 40, 40)]
-        [InlineData(SpecialItemNames.SULFURAS, 50, 50, 50, 50)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, QualityLimit.SULFURAS_DEFAULT, 0, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 1, QualityLimit.SULFURAS_DEFAULT, 1, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 10, QualityLimit.SULFURAS_DEFAULT, 10, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 20, QualityLimit.SULFURAS_DEFAULT, 20, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 30, QualityLimit.SULFURAS_DEFAULT, 30, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 40, QualityLimit.SULFURAS_DEFAULT, 40, QualityLimit.SULFURAS_DEFAULT)]
+        [InlineData(SpecialItemNames.SULFURAS, 50, QualityLimit.SULFURAS_DEFAULT, 50, QualityLimit.SULFURAS_DEFAULT)]
         #endregion
 
         #region Conjured
@@ -212,67 +200,66 @@ namespace GildedRoseTests
         }
 
         [Theory]
-
         #region Aged
-        [InlineData(SpecialItemNames.AGED, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.AGED, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -1, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -2, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -3, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -4, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, -5, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 51, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 52, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 53, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.AGED, 0, 54, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
 
         #region Backstage
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.BACKSTAGE, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -1, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -2, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -3, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -4, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, -5, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 51, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 52, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 53, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.BACKSTAGE, 0, 54, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
 
         #region Sulfuras
-        [InlineData(SpecialItemNames.SULFURAS, 0, -1, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, -2, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, -3, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, -4, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, -5, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 51, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 52, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 53, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
-        [InlineData(SpecialItemNames.SULFURAS, 0, 54, ErrorMessage.EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -1, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -2, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -3, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -4, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, -5, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 51, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 52, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 53, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
+        [InlineData(SpecialItemNames.SULFURAS, 0, 54, Message.ERROR_EXCEED_SULFURAS_STANDARD_LIMIT)]
         #endregion
 
         #region Conjured
-        [InlineData(SpecialItemNames.CONJURED, 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData(SpecialItemNames.CONJURED, 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -1, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -2, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -3, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -4, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, -5, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 51, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 52, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 53, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData(SpecialItemNames.CONJURED, 0, 54, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
 
         #region Normal
-        [InlineData("Normal Me", 0, -1, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, -2, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, -3, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, -4, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, -5, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, 51, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, 52, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, 53, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
-        [InlineData("Normal Me", 0, 54, ErrorMessage.EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -1, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -2, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -3, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -4, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, -5, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 51, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 52, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 53, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
+        [InlineData("Normal Me", 0, 54, Message.ERROR_EXCEED_NORMAL_QUALITY_LIMIT)]
         #endregion
-        public void InvalidData_Quantity_Except_Sulfuras_Test(string name, int sellIn, int quality, string expectedErrorMessage)
+        public void InvalidData_Quality_Test(string name, int sellIn, int quality, string expectedErrorMessage)
         {
             string errroMessage = string.Empty;
             try
@@ -285,6 +272,40 @@ namespace GildedRoseTests
                 app.UpdateQuality();
             }
             catch(Exception ex) 
+            {
+                errroMessage = ex.Message;
+            }
+            Assert.Equal(expectedErrorMessage, errroMessage);
+        }
+
+        [Theory]
+        [InlineData("", 0, 0, "The Name field is required.")]
+        [InlineData("", 0, 1, "The Name field is required.")]
+        [InlineData("", 0, 10, "The Name field is required.")]
+        [InlineData("", 0, 20, "The Name field is required.")]
+        [InlineData("", 0, 30, "The Name field is required.")]
+        [InlineData("", 0, 40, "The Name field is required.")]
+        [InlineData("", 0, 50, "The Name field is required.")]
+        [InlineData("", 1, 1, "The Name field is required.")]
+        [InlineData("", 10, 10, "The Name field is required.")]
+        [InlineData("", 20, 20, "The Name field is required.")]
+        [InlineData("", 30, 30, "The Name field is required.")]
+        [InlineData("", 40, 40, "The Name field is required.")]
+        [InlineData("", 50, 50, "The Name field is required.")]
+
+        public void InvalidData_Name_Test(string name, int sellIn, int quality, string expectedErrorMessage)
+        {
+            string errroMessage = string.Empty;
+            try
+            {
+                //Arrange
+                IList<Item> Items = new List<Item> { new Item { Name = name, SellIn = sellIn, Quality = quality } };
+                GildedRose app = new GildedRose(Items);
+
+                //Act
+                app.UpdateQuality();
+            }
+            catch (Exception ex)
             {
                 errroMessage = ex.Message;
             }

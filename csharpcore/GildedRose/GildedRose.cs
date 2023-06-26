@@ -2,6 +2,8 @@
 using GildedRoseKata.Strategies;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace GildedRoseKata
 {
@@ -9,7 +11,6 @@ namespace GildedRoseKata
     {
         public readonly IList<Item> _items;
         public Dictionary<string, ItemStrategyBase> _itemStrategies;
-        public Dictionary<string, ValidationStrategyBase> _valStrategies;
 
         public GildedRose(IList<Item> items)
         {
@@ -21,19 +22,18 @@ namespace GildedRoseKata
                 { SpecialItemNames.CONJURED, new ConjuredItemStrategy() },
                 { SpecialItemNames.SULFURAS, null },
             };
-            _valStrategies = new Dictionary<string, ValidationStrategyBase>
-            {
-                { SpecialItemNames.SULFURAS, new SulfurasValidationStrategy() }
-            };
         }
 
         public void UpdateQuality()
         {
             foreach(var item in _items)
             {
-                var validation = _valStrategies.GetValueOrDefault(item.Name, new DefaultValidationStrategy());
-                if (!validation.IsValid(item))
-                    throw new Exception(validation.Error);
+                var results = new List<ValidationResult>();
+                var context = new ValidationContext(item);
+                var isValid = Validator.TryValidateObject(item, context, results, true);
+
+                if (!isValid)
+                    throw new Exception(results.First().ErrorMessage);
 
                 var strategy = _itemStrategies.GetValueOrDefault(item.Name, new NormalItemStrategy());
                 if (strategy != null)
